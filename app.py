@@ -12,6 +12,7 @@ import src.controllers.user as user
 import src.controllers.address as address
 import src.controllers.city as city
 import src.controllers.order as order
+import src.controllers.product_order as product_order
 
 
 dotenv.load_dotenv()
@@ -186,6 +187,22 @@ def new_order():
     }
 
     return order.new(
+        conn=DB_CONN,
+        **kwargs
+    )
+
+
+@APP.route("/order/add/product", methods=["POST"])
+def new_product_order():
+    json: dict = request.get_json()
+
+    kwargs = {
+        "id_order": apit.treat_int(json.get("cd_pedido")),
+        "id_product": apit.treat_int(json.get("cd_produto")),
+        "qtt_items": apit.treat_int(json.get("qt_itens"))
+    }
+
+    return product_order.new(
         conn=DB_CONN,
         **kwargs
     )
