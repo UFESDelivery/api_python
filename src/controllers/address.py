@@ -134,7 +134,7 @@ def new(
             status=409
         )
     
-    columns = {
+    cv = {
         "cd_cidade": id_city,
         "no_bairro": realy_district_name,
         "no_logradouro": realy_street_name,
@@ -142,15 +142,12 @@ def new(
         "ds_numero": realy_number
     }
 
-    query_insert = f"""
-        INSERT INTO {table_name} (
-            {apit.format_columns(columns.keys())}
-        )
-        VALUES
-            ({apit.format_values(columns.values())})
-    """
+    query_insert = apit.insert_into_formater(
+        table_name=table_name,
+        columns=cv.keys()
+    )
 
-    conn.execute(query_insert)
+    conn.exec_driver_sql(query_insert, cv)
 
     id_address = get(
         conn=conn,

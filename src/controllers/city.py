@@ -110,20 +110,17 @@ def new(
             status=409
         )
 
-    columns = {
+    cv = {
         "no_cidade": realy_name,
         "cd_estado": id_state
     }
 
-    query_insert = f"""
-        INSERT INTO {table_name} (
-            {apit.format_columns(columns.keys())}
-        )
-        VALUES
-            ({apit.format_values(columns.values())})
-    """
+    query_insert = apit.insert_into_formater(
+        table_name=table_name,
+        columns=cv.keys()
+    )
 
-    conn.execute(query_insert)
+    conn.exec_driver_sql(query_insert, cv)
 
     id_city = get(
         conn=conn,

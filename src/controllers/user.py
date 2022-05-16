@@ -130,7 +130,7 @@ def new(
     
     token = apit.generate_token(conn)
 
-    columns = {
+    cv = {
         "cd_endereco": id_address,
         "ds_email": realy_user_email,
         "cd_senha": user_password,
@@ -139,16 +139,13 @@ def new(
         "cd_token": token
     }
 
-    query_insert = f"""
-        INSERT INTO {table_name} (
-            {apit.format_columns(columns.keys())}
-        )
-        VALUES
-            ({apit.format_values(columns.values())})
-    """
+    query_insert = apit.insert_into_formater(
+        table_name=table_name,
+        columns=cv.keys()
+    )
 
     try:
-        conn.execute(query_insert)
+        conn.exec_driver_sql(query_insert, cv)
     except:
         return apit.get_response(
             response={

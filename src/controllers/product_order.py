@@ -145,22 +145,19 @@ def new(
         amount_value=order_info["vl_total_compra"] + qtt_items * value_unit
     )
 
-    columns = {
+    cv = {
         "cd_pedido": id_order,
         "cd_produto": id_product,
         "qt_itens": qtt_items,
         "vl_unitario": value_unit
     }
 
-    query_insert = f"""
-        INSERT INTO {table_name} (
-            {apit.format_columns(columns.keys())}
-        )
-        VALUES
-            ({apit.format_values(columns.values())})
-    """
+    query_insert = apit.insert_into_formater(
+        table_name=table_name,
+        columns=cv.keys()
+    )
 
-    conn.execute(query_insert)
+    conn.exec_driver_sql(query_insert, cv)
 
     return apit.get_response(
         response={

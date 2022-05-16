@@ -133,7 +133,7 @@ def new(
 
     current_date = dt.datetime.now()
 
-    columns = {
+    cv = {
         "cd_usuario": id_user,
         "cd_status": 1,
         "vl_total_impostos": 0.0,
@@ -145,15 +145,12 @@ def new(
         "dt_fim": None
     }
 
-    query_insert = f"""
-        INSERT INTO {table_name} (
-            {apit.format_columns(columns.keys())}
-        )
-        VALUES
-            ({apit.format_insert(columns.keys())})
-    """
+    query_insert = apit.insert_into_formater(
+        table_name=table_name,
+        columns=cv.keys()
+    )
     
-    conn.exec_driver_sql(query_insert, columns)
+    conn.exec_driver_sql(query_insert, cv)
 
     id_order = get(
         conn=conn,
