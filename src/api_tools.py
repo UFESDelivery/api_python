@@ -11,6 +11,26 @@ import random as rdm
 import json
 
 
+def insert_into_formater(
+    table_name: str,
+    columns: list[str]
+):
+    columns_formated = [
+        f"%({k})s"
+        for k in columns
+    ]
+
+    query_insert = f"""
+        INSERT INTO {table_name} (
+            {format_columns(columns)}
+        )
+        VALUES
+            ({", ".join(columns_formated)})
+    """
+
+    return query_insert
+
+
 def get_all_valid_users_types():
     all_users = dict(
         enumerate([
@@ -83,17 +103,6 @@ def format_columns(
     values = ", ".join(cols)
 
     return values
-
-
-def format_insert(
-    keys: list[str]
-):
-    format_keys = [
-        f"%({k})s"
-        for k in keys
-    ]
-
-    return ", ".join(format_keys)
 
 
 def format_set(
