@@ -202,6 +202,18 @@ def new_product_order():
         "qtt_items": apit.treat_int(json.get("qt_itens"))
     }
 
+    if not (
+        bool(kwargs["id_order"])
+        or bool(kwargs["id_product"])
+        or bool(kwargs["qtt_items"])
+    ):
+        return apit.get_response(
+            response={
+                "message": "parâmetros incorretos"
+            },
+            status=400
+        )
+
     return product_order.new(
         conn=DB_CONN,
         **kwargs
