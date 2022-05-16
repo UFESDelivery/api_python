@@ -31,7 +31,7 @@ def get(
     where = []
 
     if bool(id_product):
-        where.append(f"AND cd_pedido = {id_product}")
+        where.append(f"AND cd_produto = {id_product}")
 
     else:
         if bool(realy_product_name):
