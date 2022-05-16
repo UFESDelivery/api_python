@@ -202,10 +202,10 @@ def new_product_order():
         "qtt_items": apit.treat_int(json.get("qt_itens"))
     }
 
-    if not (
-        bool(kwargs["id_order"])
-        or bool(kwargs["id_product"])
-        or bool(kwargs["qtt_items"])
+    if (
+        kwargs["id_order"] is None
+        or kwargs["id_product"] is None
+        or kwargs["qtt_items"] is None
     ):
         return apit.get_response(
             response={
