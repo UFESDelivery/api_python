@@ -1,0 +1,15 @@
+__pycache__/
+.git/
+.idea/
+.vscode/
+downloads/
+modeling/
+sql/
+db/
+docs/
+venv/
+
+*docker*
+*.md
+.env.exemple
+*git*
