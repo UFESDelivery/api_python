@@ -24,14 +24,14 @@ def get(
     
     where = []
 
-    if bool(id_city):
+    if id_city is not None:
         where.append(f" AND cd_cidade = {id_city}")
 
     else:
-        if bool(realy_name):
+        if realy_name is not None:
             where.append(f" AND no_cidade {equal_operator} '{realy_name}'")
         
-        if bool(id_state):
+        if id_state is not None:
             where.append(f" AND cd_estado = {id_state}")
 
     query_exists = f"""
@@ -58,13 +58,13 @@ def new(
 
     error = None
 
-    if not bool(realy_name) or len(realy_name) < 2:
+    if realy_name is None or len(realy_name) < 2:
         error = f"O nome da cidade '{realy_name}' é inválido"
     
-    elif not bool(realy_uf) or len(realy_uf) != 2:
+    elif realy_uf is None or len(realy_uf) != 2:
         error = f"A UF '{realy_uf}' do estado é inválida"
     
-    if bool(error):
+    if error is not None:
         return apit.get_response(
             response={
                 "message": error
@@ -81,7 +81,7 @@ def new(
     except:
         id_state = None
 
-    if not bool(id_state):
+    if id_state is None:
         return apit.get_response(
             response={
                 "message": f"O estado '{realy_uf}' não existe no banco"
@@ -101,7 +101,7 @@ def new(
     except:
         id_city = None
 
-    if bool(id_city):
+    if id_city is not None:
         return apit.get_response(
             response={
                 "message": f"A cidade '{realy_name}' já está cadastrada",

@@ -21,7 +21,7 @@ def get(
         SELECT *
         FROM {table_name}
         WHERE 1 = 1
-            {", ".join(where)}
+            {"".join(where)}
     """
 
     ref_product_order = conn.execute(query_select)
@@ -73,13 +73,15 @@ def new(
                         id_product=id_product
                     )[0]
 
-                    product.update(
+                    teste = product.update(
                         conn=conn,
                         id_product=id_product,
                         qtt_storege=qtt_storage - qtt_items
                     )
 
-                    order.update(
+                    print(teste.response)
+
+                    teste = order.update(
                         conn=conn,
                         id_order=id_order,
                         id_status=2,
@@ -88,13 +90,21 @@ def new(
                             + qtt_items * value_unit
                         )
                     )
+
+                    print(teste.response)
                     
-                    update(
+                    teste = update(
                         conn=conn,
                         id_order=id_order,
                         id_product=id_product,
-                        qtt_items=product_order_info["qt_itens"] + qtt_items
+                        qtt_items=product_order_info["qt_itens"] + qtt_items,
+                        amount_value=(
+                            product_order_info["vl_total"]
+                            + qtt_items * product_order_info["vl_unitario"]
+                        )
                     )
+
+                    print(teste.response)
 
                     return apit.get_response(
                         response={
@@ -111,7 +121,7 @@ def new(
                 except:
                     pass
 
-    if bool(error):
+    if error is not None:
         return apit.get_response(
             response={
                 "message": error
@@ -149,7 +159,8 @@ def new(
         "cd_pedido": id_order,
         "cd_produto": id_product,
         "qt_itens": qtt_items,
-        "vl_unitario": value_unit
+        "vl_unitario": value_unit,
+        "vl_total": qtt_items * value_unit
     }
 
     query_insert = apit.insert_into_formater(
@@ -177,13 +188,14 @@ def update(
     id_order: int,
     id_product: int,
     qtt_items: int = None,
-    value_unit: float = None
+    value_unit: float = None,
+    amount_value: float = None
 ):
     table_name = "item_pedido"
 
     error = None
 
-    values = {}
+    cv = {}
 
     try:
         get(
@@ -201,15 +213,21 @@ def update(
             if qtt_items < 0:
                 error = f"A qt_itens '{qtt_items}' é inválida"
             else:
-                values["qt_itens"] = qtt_items
+                cv["qt_itens"] = qtt_items
         
         elif bool(value_unit):
             if value_unit < 0:
                 error = f"O vl_unitario '{value_unit}' é inválido"
             else:
-                values["vl_unitario"] = value_unit
+                cv["vl_unitario"] = value_unit
+        
+        elif bool(amount_value):
+            if amount_value < 0:
+                error = f"O vl_total '{amount_value}' é inválido"
+            else:
+                cv["vl_total"] = amount_value
 
-    if bool(error):
+    if error is not None:
         return apit.get_response(
             response={
                 "message": error
@@ -217,14 +235,16 @@ def update(
             status=400
         )
 
-    query_update = f"""
-        UPDATE {table_name}
-        SET {apit.format_set(values)}
-        WHERE cd_pedido = {id_order}
-            AND cd_produto = {id_product}
-    """
+    query_update = apit.update_from_formater(
+        table_name=table_name,
+        columns=cv.keys(),
+        pk_v=[
+            ("cd_pedido", id_order),
+            ("cd_produto", id_product)
+        ]
+    )
 
-    conn.execute(query_update)
+    conn.exec_driver_sql(query_update, cv)
 
     return apit.get_response(
         response={

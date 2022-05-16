@@ -11,6 +11,30 @@ import random as rdm
 import json
 
 
+def update_from_formater(
+    table_name: str,
+    columns: Iterable[str],
+    pk_v: list[tuple[str, int]]
+):
+    set_format = [
+        f"{k} = %({k})s"
+        for k in columns
+    ]
+
+    where_format = [
+        f"{pk} = {v}"
+        for pk, v in pk_v
+    ]
+
+    query_update = f"""
+        UPDATE {table_name}
+        SET {", ".join(set_format)}
+        WHERE {" AND ".join(where_format)}
+    """
+
+    return query_update
+
+
 def insert_into_formater(
     table_name: str,
     columns: Iterable[str]

@@ -25,42 +25,42 @@ def get(
 
     where = []
 
-    if bool(id_order):
+    if id_order is not None:
         where.append(f" AND cd_pedido = {id_order}")
     
     else:
-        if bool(id_user):
+        if id_user is not None:
             where.append(f" AND cd_usuario = {id_user}")
         
-        if bool(id_status):
+        if id_status is not None:
             where.append(f" AND cd_status = {id_status}")
         
-        if bool(min_id_status):
+        if min_id_status is not None:
             where.append(f" AND cd_status >= {min_id_status}")
         
-        if bool(max_id_status):
+        if max_id_status is not None:
             where.append(f" AND cd_status <= {max_id_status}")
         
-        if bool(value_order):
+        if value_order is not None:
             where.append(f" AND vl_total_compra = {value_order}")
         
-        if bool(min_value_order):
+        if min_value_order is not None:
             where.append(f" AND vl_total_compra >= {min_value_order}")
 
-        if bool(max_value_order):
+        if max_value_order is not None:
             where.append(f" AND vl_total_compra <= {max_value_order}")
         
-        if bool(date):
+        if date is not None:
             format_date = apit.format_date(date)
 
             where.append(f" AND dt_ultima_alteracao = {format_date}")
         
-        if bool(min_date):
+        if min_date is not None:
             format_date = apit.format_date(min_date)
 
             where.append(f" AND dt_ultima_alteracao >= {format_date}")
         
-        if bool(max_date):
+        if max_date is not None:
             format_date = apit.format_date(max_date)
 
             where.append(f" AND dt_ultima_alteracao <= {format_date}")
@@ -123,7 +123,7 @@ def new(
         except:
             pass
     
-    if bool(error):
+    if error is not None:
         return apit.get_response(
             response={
                 "message": error
@@ -181,56 +181,56 @@ def update(
 
     error = None
 
-    values = {}
+    cv = {}
 
     current_date = dt.datetime.now()
 
     try:
         get(
             conn=conn,
-            id_product=id_order
+            id_order=id_order
         )[0]["cd_pedido"]
     except:
-        error = f"O cd_produto '{id_order}' não foi encontrado"
+        error = f"O cd_pedido '{id_order}' não foi encontrado"
     else:
         if close:
-            values["dt_fim"] = current_date
-            values["cd_status"] = 5
+            cv["dt_fim"] = current_date
+            cv["cd_status"] = 5
         else:
-            if bool(id_status):
+            if id_status is not None:
                 if id_status not in apit.get_all_valid_status():
                     error = f"O cd_status '{id_status}' é inválido"
                 else:
-                    values["cd_status"] = id_status
+                    cv["cd_status"] = id_status
             
-            if bool(tax_value):
+            if tax_value is not None:
                 if tax_value < 0:
                     error = f"O vl_total_impostos '{tax_value}' é inválido"
                 else:
-                    values["vl_total_impostos"] = tax_value
+                    cv["vl_total_impostos"] = tax_value
             
-            if bool(amount_value):
+            if amount_value is not None:
                 if amount_value < 0:
                     error = f"O vl_total_compra '{amount_value}' é invalido"
                 else:
-                    values["vl_total_compra"] = amount_value
+                    cv["vl_total_compra"] = amount_value
             
-            if bool(discount_value):
+            if discount_value is not None:
                 if discount_value < 0:
                     error = f"O vl_total_descontos '{discount_value}' é inválido"
                 else:
-                    values["vl_total_descontos"] = discount_value
+                    cv["vl_total_descontos"] = discount_value
             
-            if bool(payment_value):
+            if payment_value is not None:
                 if payment_value < 0:
                     error = f"O vl_total_a_pagar '{payment_value}' é inválido"
                 else:
-                    values["vl_total_a_pagar"] = payment_value
+                    cv["vl_total_a_pagar"] = payment_value
 
-            if len(values) == 0:
+            if len(cv) == 0:
                 error = f"Nenhuma coluna foi informada para alteração"
 
-    if bool(error):
+    if error is not None:
         return apit.get_response(
             response={
                 "message": error
@@ -238,15 +238,17 @@ def update(
             status=400
         )
     
-    values["dt_ultima_alteracao"] = current_date
+    cv["dt_ultima_alteracao"] = current_date
 
-    query_update = f"""
-        UPDATE {table_name}
-        SET {apit.format_set(values)}
-        WHERE cd_pedido = {id_order}
-    """
+    query_update = apit.update_from_formater(
+        table_name=table_name,
+        columns=cv.keys(),
+        pk_v=[
+            ("cd_pedido", id_order)
+        ]
+    )
 
-    conn.execute(query_update)
+    conn.exec_driver_sql(query_update, cv)
 
     return apit.get_response(
         response={

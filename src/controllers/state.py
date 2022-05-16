@@ -25,14 +25,14 @@ def get(
     
     where = []
 
-    if bool(id_state):
+    if id_state is not None:
         where.append(f" AND cd_estado = {id_state}")
 
     else:
-        if bool(realy_state_name):
+        if realy_state_name is not None:
             where.append(f" AND ds_estado {equal_operator} '{realy_state_name}'")
 
-        if bool(realy_uf):
+        if realy_uf is not None:
             where.append(f" AND cd_uf {equal_operator} '{realy_uf}'")
 
     query_exists = f"""

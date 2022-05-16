@@ -30,29 +30,29 @@ def get(
 
     where = []
 
-    if bool(id_product):
+    if id_product is not None:
         where.append(f"AND cd_produto = {id_product}")
 
     else:
-        if bool(realy_product_name):
+        if realy_product_name is not None:
             where.append(f"AND no_produto {equal_operator} '{realy_product_name}'")
 
-        if bool(value_unit):
+        if value_unit is not None:
             where.append(f"AND vl_unitario = {value_unit}")
 
-        if bool(min_value_unit):
+        if min_value_unit is not None:
             where.append(f"AND vl_unitario >= {min_value_unit}")
 
-        if bool(max_value_unit):
+        if max_value_unit is not None:
             where.append(f"AND vl_unitario <= {max_value_unit}")
 
-        if bool(qtt_storege):
+        if qtt_storege is not None:
             where.append(f"AND qt_estoque = {qtt_storege}")
 
-        if bool(min_qtt_storege):
+        if min_qtt_storege is not None:
             where.append(f"AND qt_estoque >= {min_qtt_storege}")
 
-        if bool(max_qtt_storege):
+        if max_qtt_storege is not None:
             where.append(f"AND qt_estoque <= {max_qtt_storege}")
     
     query = f"""
@@ -82,13 +82,13 @@ def new(
     if value_unit < 0:
         error = f"O valor '{value_unit}' é inválido"
     
-    elif not bool(realy_product_name) or len(realy_product_name) < 5:
+    elif realy_product_name is None or len(realy_product_name) < 5:
         error = f"O nome '{realy_product_name}' é inválido"
 
     elif qtt_storege < 0:
         error = f"A quantidade '{qtt_storege}' é inválida"
     
-    if bool(error):
+    if error is not None:
         return apit.get_response(
             response={
                 "message": error
@@ -103,7 +103,7 @@ def new(
         product_name=realy_product_name
     )
 
-    if bool(product_info):
+    if len(product_info) > 0:
         id_product = product_info[0]["cd_produto"]
 
         return apit.get_response(
@@ -156,7 +156,7 @@ def update(
 
     error = None
 
-    values = {}
+    cv = {}
 
     try:
         get(
@@ -166,28 +166,30 @@ def update(
     except:
         error = f"O cd_produto '{id_product}' não foi encontrado"
     else:
-        if bool(realy_product_name):
+        if realy_product_name is not None:
             if len(realy_product_name) < 5:
                 error = f"O no_produto '{realy_product_name}' é inválido"
             else:
-                values["no_produto"] = realy_product_name
+                cv["no_produto"] = realy_product_name
 
-        if bool(value_unit):
+        if value_unit is not None:
             if value_unit < 0:
                 error = f"O vl_unitario '{value_unit}' é inválido"
             else:
-                values["vl_unitario"] = value_unit
+                cv["vl_unitario"] = value_unit
         
-        if bool(qtt_storege):
+        if qtt_storege is not None:
             if qtt_storege < 0:
                 error = f"A qt_estoque '{qtt_storege}' é inválida"
             else:
-                values["qt_estoque"] = qtt_storege
+                cv["qt_estoque"] = qtt_storege
 
-        if len(values) == 0:
+        if len(cv) == 0:
             error = f"Nenhuma coluna foi informada para alteração"
 
-    if bool(error):
+    print(cv)
+
+    if error is not None:
         return apit.get_response(
             response={
                 "message": error
@@ -195,15 +197,17 @@ def update(
             status=400
         )
     
-    values["dt_ultima_alteracao"] = dt.datetime.now()
+    cv["dt_ultima_alteracao"] = dt.datetime.now()
 
-    query_update = f"""
-        UPDATE {table_name}
-        SET {apit.format_set(values)}
-        WHERE cd_produto = {id_product}
-    """
+    query_update = apit.update_from_formater(
+        table_name=table_name,
+        columns=cv.keys(),
+        pk_v=[
+            ("cd_produto", id_product)
+        ]
+    )
 
-    conn.execute(query_update)
+    conn.exec_driver_sql(query_update, cv)
 
     return apit.get_response(
         response={

@@ -34,23 +34,23 @@ def get(
     
     where = []
 
-    if bool(id_address):
+    if id_address is not None:
         where.append(f" AND cd_endereco = {id_address}")
     
     else:
-        if bool(id_city):
+        if id_city is not None:
             where.append(f" AND cd_cidade = {id_city}")
         
-        if bool(realy_district_name):
+        if realy_district_name is not None:
             where.append(f" AND no_bairro {equal_operator} '{realy_district_name}'")
         
-        if bool(realy_street_name):
+        if realy_street_name is not None:
             where.append(f" AND no_logradouro {equal_operator} '{realy_street_name}'")
         
-        if bool(realy_postal_code):
+        if realy_postal_code is not None:
             where.append(f" AND nu_cep {equal_operator} '{realy_postal_code}'")
         
-        if bool(realy_number):
+        if realy_number is not None:
             where.append(f" AND ds_numero {equal_operator} '{realy_number}'")
 
     query_exists = f"""
@@ -90,19 +90,19 @@ def new(
     except:
         error = f"O cd_cidade '{id_city}' não existe"
     else:
-        if not bool(realy_district_name) or len(realy_district_name) < 5:
+        if realy_district_name is None or len(realy_district_name) < 5:
             error = f"Nome do bairro '{realy_district_name}' inválido"
         
-        elif not bool(realy_street_name) or len(realy_street_name) < 7:
+        elif realy_street_name is None or len(realy_street_name) < 7:
             error = f"Logradouro '{realy_street_name}' inválido"
         
-        elif not bool(realy_postal_code) or len(realy_postal_code) != 8:
+        elif realy_postal_code is None or len(realy_postal_code) != 8:
             error = f"CEP '{realy_postal_code}' inválido"
         
-        elif not bool(realy_number):
+        elif realy_number is None:
             error = f"Número '{realy_number}' inválido"
 
-    if bool(error):
+    if error is not None:
         return apit.get_response(
             response={
                 "message": error
@@ -125,7 +125,7 @@ def new(
     except:
         id_address = None
 
-    if bool(id_address):
+    if id_address is None:
         return apit.get_response(
             response={
                 "message": f"O endereço '{realy_district_name}' já está cadastrado",

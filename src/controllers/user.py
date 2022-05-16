@@ -31,20 +31,20 @@ def get(
     
     where = []
 
-    if bool(id_user):
+    if id_user is not None:
         where.append(f" AND cd_usuario = {id_user}")
     
     else:
-        if bool(id_address):
+        if id_address is not None:
             where.append(f" AND cd_endereco = {id_address}")
         
-        if bool(realy_user_email):
+        if realy_user_email is not None:
             where.append(f" AND ds_email {equal_operator} '{realy_user_email}'")
         
-        if bool(realy_user_name):
+        if realy_user_name is not None:
             where.append(f" AND no_usuario {equal_operator} '{realy_user_name}'")
         
-        if bool(user_type):
+        if user_type is not None:
             where.append(f" AND cd_tipo_usuario = {user_type}")
 
     columns = [
@@ -97,7 +97,7 @@ def new(
         if not re.search(regex_email, realy_user_email):
             erro = f"O email '{realy_user_email}' é inválido"
         
-        elif not realy_user_name or len(realy_user_name) < 4:
+        elif realy_user_name is None or len(realy_user_name) < 4:
             erro = f"O nome do usuário deve possuir no mínimo 4 caracteres"
         
         elif len(user_password) < 8:
@@ -106,7 +106,13 @@ def new(
         elif user_type not in apit.get_all_valid_users_types():
             erro = f"Tipo '{user_type}' de usuário inválido"
         
-        elif user_type > 1 and (not realy_user_adm_email or not user_adm_password):
+        elif (
+            user_type > 1
+            and (
+                realy_user_adm_email is None
+                or user_adm_password is None
+            )
+        ):
             erro = (
                 f"Para criar esse tipo de usuário é necessário informar as "
                 f"credenciais de um administrador"
@@ -120,7 +126,7 @@ def new(
         ):
             erro = f"Credenciais do administrador inválida"
 
-    if bool(erro):
+    if erro is not None:
         return apit.get_response(
             response={
                 "message": erro
