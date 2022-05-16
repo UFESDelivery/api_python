@@ -13,7 +13,7 @@ import json
 
 def insert_into_formater(
     table_name: str,
-    columns: list[str]
+    columns: Iterable[str]
 ):
     columns_formated = [
         f"%({k})s"
