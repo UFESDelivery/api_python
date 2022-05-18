@@ -1,9 +1,9 @@
 version: '3.1'
 
 services:
-  mysql-8.0.29-debian:
+  mysql-ufes-delivery:
     image: mysql:8.0.29-debian
-    container_name: mysql_db_ufes_delivery
+    container_name: mysql_ufes_delivery
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:
@@ -15,12 +15,12 @@ services:
     networks:
       - backend_python
 
-  python-3.10.4-alpine3.15:
+  api-python-ufes-delivery:
     build: .
-    container_name: python_ufes_delivery
+    container_name: api_python_ufes_delivery
     restart: always
     depends_on:
-      - "mysql-8.0.29-debian"
+      - "mysql-ufes-delivery"
     ports:
       - $APP_PORT:5000
     networks:
