@@ -125,10 +125,10 @@ def new(
     except:
         id_address = None
 
-    if id_address is None:
+    if id_address is not None:
         return apit.get_response(
             response={
-                "message": f"O endereço '{realy_district_name}' já está cadastrado",
+                "message": f"O endereço '{realy_street_name}' já está cadastrado",
                 "id_address": id_address
             },
             status=409
