@@ -185,7 +185,7 @@ CREATE TABLE IF NOT EXISTS produto (
     
     , CONSTRAINT fk_produto_categoria
         FOREIGN KEY (cd_categoria)
-            REFERENCES categoria(cd_categoria)
+            REFERENCES categoria_produto(cd_categoria)
 );
 
 
