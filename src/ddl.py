@@ -1,7 +1,7 @@
 from sqlalchemy.engine import Connection
 
 
-def create_estado(
+def create_state(
     conn: Connection
 ):
     query = """
@@ -20,7 +20,7 @@ def create_estado(
     conn.execute(query)
 
 
-def create_cidade(
+def create_city(
     conn: Connection
 ):
     query = """
@@ -41,7 +41,7 @@ def create_cidade(
     conn.execute(query)
 
 
-def create_endereco(
+def create_address(
     conn: Connection
 ):
     query = """
@@ -65,7 +65,7 @@ def create_endereco(
     conn.execute(query)
 
 
-def create_usuario(
+def create_user(
     conn: Connection
 ):
     query = """
@@ -95,7 +95,7 @@ def create_usuario(
     conn.execute(query)
 
 
-def create_desconto(
+def create_discount(
     conn: Connection
 ):
     query = """
@@ -120,7 +120,7 @@ def create_desconto(
     conn.execute(query)
 
 
-def create_pedido(
+def create_order(
     conn: Connection
 ):
     query = """
@@ -148,7 +148,7 @@ def create_pedido(
     conn.execute(query)
 
 
-def create_aplicacao_desconto(
+def create_apply_discount(
     conn: Connection
 ):
     query = """
@@ -172,7 +172,7 @@ def create_aplicacao_desconto(
     conn.execute(query)
 
 
-def create_imposto(
+def create_tax(
     conn: Connection
 ):
     query = """
@@ -189,7 +189,7 @@ def create_imposto(
     conn.execute(query)
 
 
-def create_aplicacao_imposto(
+def create_apply_tax(
     conn: Connection
 ):
     query = """
@@ -215,7 +215,7 @@ def create_aplicacao_imposto(
 
 
 
-def create_categoria_produto(
+def create_product_category(
     conn: Connection
 ):
     query = """
@@ -233,7 +233,7 @@ def create_categoria_produto(
     conn.execute(query)
 
 
-def create_produto(
+def create_product(
     conn: Connection
 ):
     query = """
@@ -255,7 +255,7 @@ def create_produto(
     conn.execute(query)
 
 
-def create_item_pedido(
+def create_item_order(
     conn: Connection
 ):
     query = """
@@ -285,21 +285,21 @@ def create_item_pedido(
 def create_all(
     conn: Connection
 ):
-    create_estado(conn)
-    create_cidade(conn)
-    create_endereco(conn)
-    create_usuario(conn)
-    create_desconto(conn)
-    create_pedido(conn)
-    create_aplicacao_desconto(conn)
-    create_imposto(conn)
-    create_aplicacao_imposto(conn)
-    create_categoria_produto(conn)
-    create_produto(conn)
-    create_item_pedido(conn)
+    create_state(conn)
+    create_city(conn)
+    create_address(conn)
+    create_user(conn)
+    create_discount(conn)
+    create_order(conn)
+    create_apply_discount(conn)
+    create_tax(conn)
+    create_apply_tax(conn)
+    create_product_category(conn)
+    create_product(conn)
+    create_item_order(conn)
 
 
-def drop_estado(
+def drop_state(
     conn: Connection
 ):
     query = "DROP TABLE IF EXISTS estado"
@@ -307,7 +307,7 @@ def drop_estado(
     conn.execute(query)
 
 
-def drop_cidade(
+def drop_city(
     conn: Connection
 ):
     query = "DROP TABLE IF EXISTS cidade"
@@ -315,7 +315,7 @@ def drop_cidade(
     conn.execute(query)
 
 
-def drop_endereco(
+def drop_address(
     conn: Connection
 ):
     query = "DROP TABLE IF EXISTS endereco"
@@ -323,7 +323,7 @@ def drop_endereco(
     conn.execute(query)
 
 
-def drop_usuario(
+def drop_user(
     conn: Connection
 ):
     query = "DROP TABLE IF EXISTS usuario"
@@ -331,7 +331,7 @@ def drop_usuario(
     conn.execute(query)
 
 
-def drop_desconto(
+def drop_discount(
     conn: Connection
 ):
     query = "DROP TABLE IF EXISTS desconto"
@@ -339,7 +339,7 @@ def drop_desconto(
     conn.execute(query)
 
 
-def drop_pedido(
+def drop_order(
     conn: Connection
 ):
     query = "DROP TABLE IF EXISTS pedido"
@@ -347,7 +347,7 @@ def drop_pedido(
     conn.execute(query)
 
 
-def drop_aplicacao_desconto(
+def drop_apply_discount(
     conn: Connection
 ):
     query = "DROP TABLE IF EXISTS aplicacao_desconto"
@@ -355,7 +355,7 @@ def drop_aplicacao_desconto(
     conn.execute(query)
 
 
-def drop_imposto(
+def drop_tax(
     conn: Connection
 ):
     query = "DROP TABLE IF EXISTS imposto"
@@ -363,7 +363,7 @@ def drop_imposto(
     conn.execute(query)
 
 
-def drop_aplicacao_imposto(
+def drop_apply_tax(
     conn: Connection
 ):
     query = "DROP TABLE IF EXISTS aplicacao_imposto"
@@ -371,7 +371,7 @@ def drop_aplicacao_imposto(
     conn.execute(query)
 
 
-def drop_categoria_produto(
+def drop_product_category(
     conn: Connection
 ):
     query = "DROP TABLE IF EXISTS categoria_produto"
@@ -379,7 +379,7 @@ def drop_categoria_produto(
     conn.execute(query)
 
 
-def drop_produto(
+def drop_product(
     conn: Connection
 ):
     query = "DROP TABLE IF EXISTS produto"
@@ -387,7 +387,7 @@ def drop_produto(
     conn.execute(query)
 
 
-def drop_item_pedido(
+def drop_item_order(
     conn: Connection
 ):
     query = "DROP TABLE IF EXISTS item_pedido"
@@ -398,18 +398,18 @@ def drop_item_pedido(
 def drop_all(
     conn: Connection
 ):
-    drop_aplicacao_desconto(conn)
-    drop_aplicacao_imposto(conn)
-    drop_item_pedido(conn)
-    drop_produto(conn)
-    drop_categoria_produto(conn)
-    drop_imposto(conn)
-    drop_pedido(conn)
-    drop_desconto(conn)
-    drop_usuario(conn)
-    drop_endereco(conn)
-    drop_cidade(conn)
-    drop_estado(conn)
+    drop_apply_discount(conn)
+    drop_apply_tax(conn)
+    drop_item_order(conn)
+    drop_product(conn)
+    drop_product_category(conn)
+    drop_tax(conn)
+    drop_order(conn)
+    drop_discount(conn)
+    drop_user(conn)
+    drop_address(conn)
+    drop_city(conn)
+    drop_state(conn)
 
 
 def recreate_all(
