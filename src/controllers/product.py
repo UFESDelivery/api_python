@@ -170,6 +170,7 @@ def new(
 def update(
     conn: Connection,
     id_product: int,
+    id_category: int = None,
     product_name: str = None,
     value_unit: float = None,
     qtt_storege: int = None,
@@ -182,37 +183,36 @@ def update(
 
     cv = {}
 
-    if id_product is not None:
-        exists_id_product = get(
-            conn=conn,
-            id_product=id_product
-        )
-        
-        if len(exists_id_product) == 0:
-            error = f"O cd_produto '{id_product}' não foi encontrado"
-        else:
-            cv["cd_produto"] = id_product
-
-    if realy_product_name is not None:
-        if len(realy_product_name) < 5:
-            error = f"O no_produto '{realy_product_name}' é inválido"
-        else:
-            cv["no_produto"] = realy_product_name
-
-    if value_unit is not None:
-        if value_unit < 0:
-            error = f"O vl_unitario '{value_unit}' é inválido"
-        else:
-            cv["vl_unitario"] = value_unit
+    exists_id_product = get(
+        conn=conn,
+        id_product=id_product
+    )
     
-    if qtt_storege is not None:
-        if qtt_storege < 0:
-            error = f"A qt_estoque '{qtt_storege}' é inválida"
-        else:
-            cv["qt_estoque"] = qtt_storege
+    if len(exists_id_product) == 0:
+        error = f"O cd_produto '{id_product}' não foi encontrado"
+    else:
+        cv["cd_produto"] = id_product
 
-    if len(cv) == 0:
-        error = f"Nenhuma coluna foi informada para alteração"
+        if realy_product_name is not None:
+            if len(realy_product_name) < 5:
+                error = f"O no_produto '{realy_product_name}' é inválido"
+            else:
+                cv["no_produto"] = realy_product_name
+
+        if value_unit is not None:
+            if value_unit < 0:
+                error = f"O vl_unitario '{value_unit}' é inválido"
+            else:
+                cv["vl_unitario"] = value_unit
+        
+        if qtt_storege is not None:
+            if qtt_storege < 0:
+                error = f"A qt_estoque '{qtt_storege}' é inválida"
+            else:
+                cv["qt_estoque"] = qtt_storege
+
+        if len(cv) == 0:
+            error = f"Nenhuma coluna foi informada para alteração"
 
     if error is not None:
         return apit.get_response(
