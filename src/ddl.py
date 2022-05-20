@@ -214,6 +214,25 @@ def create_aplicacao_imposto(
     conn.execute(query)
 
 
+
+def create_categoria_produto(
+    conn: Connection
+):
+    query = """
+        CREATE TABLE IF NOT EXISTS categoria_produto (
+            cd_categoria            INTEGER NOT NULL AUTO_INCREMENT
+            , ds_categoria          VARCHAR(100) NOT NULL
+            , dt_ultima_alteracao   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            , dt_criacao            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+            , CONSTRAINT pk_categoria
+                PRIMARY KEY (cd_categoria)
+        )
+    """
+
+    conn.execute(query)
+
+
 def create_produto(
     conn: Connection
 ):
@@ -275,6 +294,7 @@ def create_all(
     create_aplicacao_desconto(conn)
     create_imposto(conn)
     create_aplicacao_imposto(conn)
+    create_categoria_produto(conn)
     create_produto(conn)
     create_item_pedido(conn)
 
@@ -351,6 +371,14 @@ def drop_aplicacao_imposto(
     conn.execute(query)
 
 
+def drop_categoria_produto(
+    conn: Connection
+):
+    query = "DROP TABLE IF EXISTS categoria_produto"
+
+    conn.execute(query)
+
+
 def drop_produto(
     conn: Connection
 ):
@@ -374,6 +402,7 @@ def drop_all(
     drop_aplicacao_imposto(conn)
     drop_item_pedido(conn)
     drop_produto(conn)
+    drop_categoria_produto(conn)
     drop_imposto(conn)
     drop_pedido(conn)
     drop_desconto(conn)
