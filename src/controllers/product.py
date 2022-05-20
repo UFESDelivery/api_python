@@ -4,6 +4,8 @@ import datetime as dt
 
 import src.api_tools as apit
 
+import src.controllers.category_product as category_product
+
 
 def get(
     conn: Connection,
@@ -32,38 +34,38 @@ def get(
     where = []
 
     if id_product is not None:
-        where.append(f" AND cd_produto = {id_product}")
+        where.append(f"AND cd_produto = {id_product}")
 
     else:
         if id_category is not None:
-            where.append(f" AND cd_categoria = {id_category}")
+            where.append(f"AND cd_categoria = {id_category}")
 
         if realy_product_name is not None:
-            where.append(f" AND no_produto {equal_operator} '{realy_product_name}'")
+            where.append(f"AND no_produto {equal_operator} '{realy_product_name}'")
 
         if value_unit is not None:
-            where.append(f" AND vl_unitario = {value_unit}")
+            where.append(f"AND vl_unitario = {value_unit}")
 
         if min_value_unit is not None:
-            where.append(f" AND vl_unitario >= {min_value_unit}")
+            where.append(f"AND vl_unitario >= {min_value_unit}")
 
         if max_value_unit is not None:
-            where.append(f" AND vl_unitario <= {max_value_unit}")
+            where.append(f"AND vl_unitario <= {max_value_unit}")
 
         if qtt_storege is not None:
-            where.append(f" AND qt_estoque = {qtt_storege}")
+            where.append(f"AND qt_estoque = {qtt_storege}")
 
         if min_qtt_storege is not None:
-            where.append(f" AND qt_estoque >= {min_qtt_storege}")
+            where.append(f"AND qt_estoque >= {min_qtt_storege}")
 
         if max_qtt_storege is not None:
-            where.append(f" AND qt_estoque <= {max_qtt_storege}")
+            where.append(f"AND qt_estoque <= {max_qtt_storege}")
     
     query = f"""
         SELECT *
         FROM {table_name}
         WHERE 1 = 1
-            {"".join(where)}
+            {" ".join(where)}
     """
 
     ref_product = conn.execute(query)
@@ -73,6 +75,7 @@ def get(
 
 def new(
     conn: Connection,
+    id_category: int,
     product_name: str,
     value_unit: float,
     qtt_storege: int
@@ -83,7 +86,10 @@ def new(
 
     error = None
 
-    if value_unit < 0:
+    if id_category < 0:
+        error = f"O cd_categoria '{id_category}' é inválido"
+
+    elif value_unit < 0:
         error = f"O valor '{value_unit}' é inválido"
     
     elif realy_product_name is None or len(realy_product_name) < 5:
@@ -96,6 +102,19 @@ def new(
         return apit.get_response(
             response={
                 "message": error
+            },
+            status=400
+        )
+    
+    id_category_exists = category_product.get(
+        conn=conn,
+        id_category=id_category
+    )
+
+    if len(id_category_exists) == 0:
+        return apit.get_response(
+            response={
+                "message": f"O cd_categoria '{id_category}' não existe"
             },
             status=400
         )
@@ -119,6 +138,7 @@ def new(
         )
     
     cv = {
+        "cd_categoria": id_category,
         "no_produto": realy_product_name,
         "vl_unitario": value_unit,
         "qt_estoque": qtt_storege,
@@ -162,36 +182,37 @@ def update(
 
     cv = {}
 
-    try:
-        get(
+    if id_product is not None:
+        exists_id_product = get(
             conn=conn,
             id_product=id_product
-        )[0]["cd_produto"]
-    except:
-        error = f"O cd_produto '{id_product}' não foi encontrado"
-    else:
-        if realy_product_name is not None:
-            if len(realy_product_name) < 5:
-                error = f"O no_produto '{realy_product_name}' é inválido"
-            else:
-                cv["no_produto"] = realy_product_name
-
-        if value_unit is not None:
-            if value_unit < 0:
-                error = f"O vl_unitario '{value_unit}' é inválido"
-            else:
-                cv["vl_unitario"] = value_unit
+        )
         
-        if qtt_storege is not None:
-            if qtt_storege < 0:
-                error = f"A qt_estoque '{qtt_storege}' é inválida"
-            else:
-                cv["qt_estoque"] = qtt_storege
+        if len(exists_id_product) == 0:
+            error = f"O cd_produto '{id_product}' não foi encontrado"
+        else:
+            cv["cd_produto"] = id_product
 
-        if len(cv) == 0:
-            error = f"Nenhuma coluna foi informada para alteração"
+    if realy_product_name is not None:
+        if len(realy_product_name) < 5:
+            error = f"O no_produto '{realy_product_name}' é inválido"
+        else:
+            cv["no_produto"] = realy_product_name
 
-    print(cv)
+    if value_unit is not None:
+        if value_unit < 0:
+            error = f"O vl_unitario '{value_unit}' é inválido"
+        else:
+            cv["vl_unitario"] = value_unit
+    
+    if qtt_storege is not None:
+        if qtt_storege < 0:
+            error = f"A qt_estoque '{qtt_storege}' é inválida"
+        else:
+            cv["qt_estoque"] = qtt_storege
+
+    if len(cv) == 0:
+        error = f"Nenhuma coluna foi informada para alteração"
 
     if error is not None:
         return apit.get_response(
