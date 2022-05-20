@@ -117,8 +117,6 @@ VALUES
 
 INSERT INTO categoria_produto (
     ds_categoria
-    , dt_ultima_alteracao
-    , dt_criacao
 )
 VALUES
     ('VITAMINAS')

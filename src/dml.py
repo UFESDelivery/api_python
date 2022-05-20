@@ -67,8 +67,6 @@ def insert_product_category(
     query = """
         INSERT INTO categoria_produto (
             ds_categoria
-            , dt_ultima_alteracao
-            , dt_criacao
         )
         VALUES
             ('VITAMINAS')
@@ -78,6 +76,8 @@ def insert_product_category(
             , ('PORÇÕES')
             , ('LANCHES GOURMET')
     """
+
+    conn.execute(query)
 
 
 def insert_product(
