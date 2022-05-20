@@ -158,8 +158,20 @@ CREATE TABLE IF NOT EXISTS aplicacao_imposto (
 );
 
 
+CREATE TABLE IF NOT EXISTS categoria_produto (
+    cd_categoria            INTEGER NOT NULL AUTO_INCREMENT
+    , ds_categoria          VARCHAR(100) NOT NULL
+    , dt_ultima_alteracao   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    , dt_criacao            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+    , CONSTRAINT pk_categoria
+        PRIMARY KEY (cd_categoria)
+);
+
+
 CREATE TABLE IF NOT EXISTS produto (
     cd_produto              INTEGER NOT NULL AUTO_INCREMENT
+    , cd_categoria          INTEGER NOT NULL
     , no_produto            VARCHAR(100) NOT NULL
     , vl_unitario           DOUBLE NOT NULL
     , qt_estoque            INTEGER NOT NULL
@@ -170,6 +182,10 @@ CREATE TABLE IF NOT EXISTS produto (
 
     , CONSTRAINT pk_produto
         PRIMARY KEY (cd_produto)
+    
+    , CONSTRAINT fk_produto_categoria
+        FOREIGN KEY (cd_categoria)
+            REFERENCES categoria(cd_categoria)
 );
 
 
