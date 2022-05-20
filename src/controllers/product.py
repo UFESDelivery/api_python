@@ -193,6 +193,17 @@ def update(
     else:
         cv["cd_produto"] = id_product
 
+        if id_category is not None:
+            exists_category_product = category_product.get(
+                conn=conn,
+                id_category=id_category
+            )
+
+            if len(exists_category_product) == 0:
+                error = f"O cd_categoria '{id_category}' não foi encontrado"
+            else:
+                cv["cd_categoria"] = id_category
+
         if realy_product_name is not None:
             if len(realy_product_name) < 5:
                 error = f"O no_produto '{realy_product_name}' é inválido"
