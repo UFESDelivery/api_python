@@ -216,6 +216,7 @@ DROP TABLE IF EXISTS aplicacao_desconto;
 DROP TABLE IF EXISTS aplicacao_imposto;
 DROP TABLE IF EXISTS item_pedido;
 DROP TABLE IF EXISTS produto;
+DROP TABLE IF EXISTS categoria_produto;
 DROP TABLE IF EXISTS imposto;
 DROP TABLE IF EXISTS pedido;
 DROP TABLE IF EXISTS desconto;
