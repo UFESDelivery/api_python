@@ -18,14 +18,16 @@ import src.controllers.product_order as product_order
 dotenv.load_dotenv()
 
 DB_USER = os.getenv("DB_USER")
-# DB_PASS = os.getenv("DB_PASS")
+DB_PASS = os.getenv("DB_PASS")
 DB_NAME = os.getenv("DB_NAME")
-# DB_SERV = os.getenv("DB_SERV")
-# DB_PORT = 3306
+DB_SERV = os.getenv("DB_SERV")
+DB_PORT = os.getenv("DB_PORT")
 
-DB_PASS = 1234
-DB_SERV = "localhost"
-DB_PORT = 5070
+# DB_USER = "root"
+# DB_PASS = "1234"
+# DB_NAME = "ufesdelivery"
+# DB_SERV = "localhost"
+# DB_PORT = 5070
 
 DB_CONN = apit.conn_mysql(
     username=DB_USER,
