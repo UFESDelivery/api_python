@@ -8,6 +8,7 @@ import src.api_tools as apit
 def get(
     conn: Connection,
     id_product: int = None,
+    id_category: int = None,
     product_name: str = None,
     value_unit: float = None,
     min_value_unit: float = None,
@@ -31,29 +32,32 @@ def get(
     where = []
 
     if id_product is not None:
-        where.append(f"AND cd_produto = {id_product}")
+        where.append(f" AND cd_produto = {id_product}")
 
     else:
+        if id_category is not None:
+            where.append(f" AND cd_categoria = {id_category}")
+
         if realy_product_name is not None:
-            where.append(f"AND no_produto {equal_operator} '{realy_product_name}'")
+            where.append(f" AND no_produto {equal_operator} '{realy_product_name}'")
 
         if value_unit is not None:
-            where.append(f"AND vl_unitario = {value_unit}")
+            where.append(f" AND vl_unitario = {value_unit}")
 
         if min_value_unit is not None:
-            where.append(f"AND vl_unitario >= {min_value_unit}")
+            where.append(f" AND vl_unitario >= {min_value_unit}")
 
         if max_value_unit is not None:
-            where.append(f"AND vl_unitario <= {max_value_unit}")
+            where.append(f" AND vl_unitario <= {max_value_unit}")
 
         if qtt_storege is not None:
-            where.append(f"AND qt_estoque = {qtt_storege}")
+            where.append(f" AND qt_estoque = {qtt_storege}")
 
         if min_qtt_storege is not None:
-            where.append(f"AND qt_estoque >= {min_qtt_storege}")
+            where.append(f" AND qt_estoque >= {min_qtt_storege}")
 
         if max_qtt_storege is not None:
-            where.append(f"AND qt_estoque <= {max_qtt_storege}")
+            where.append(f" AND qt_estoque <= {max_qtt_storege}")
     
     query = f"""
         SELECT *
