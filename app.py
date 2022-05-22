@@ -14,6 +14,7 @@ import src.controllers.user as user
 import src.controllers.address as address
 import src.controllers.city as city
 import src.controllers.order as order
+import src.controllers.product as produtc
 import src.controllers.product_order as product_order
 
 
@@ -274,6 +275,55 @@ def new_order():
     return order.new(
         conn=DB_CONN,
         **kwargs
+    )
+
+
+@APP.route("/product/get/<id_>", methods=["GET"])
+def get_all_product(
+    id_: int | str
+):
+    treat_id = apit.treat_int(id_)
+
+    response = {}
+    
+    if str(id_) == "all":
+        all_product = produtc.get(
+            conn=DB_CONN
+        )
+
+        qtt_products = len(all_product)
+
+        if qtt_products > 0:
+            response["message"] = f"'{qtt_products}' produtos encontrados"
+            response["result"] = all_product
+            status = 200
+        
+        else:
+            response["message"] = "Nenhum produto encontrado"
+            status = 400
+
+    elif treat_id is not None:
+        one_product = produtc.get(
+            conn=DB_CONN,
+            id_product=treat_id
+        )
+
+        if len(one_product) > 0:
+            response["message"] = f"Produto encontrado"
+            response["result"] = one_product[0]
+            status = 200
+        
+        else:
+            response["message"] = f"O cd_produto '{treat_id}' não foi encontrado"
+            status = 400
+
+    else:
+        response["message"] = f"Parâmetros incorretos"
+        status = 400
+
+    return apit.get_response(
+        response=response,
+        status=status
     )
 
 
