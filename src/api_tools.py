@@ -315,6 +315,9 @@ def is_valid_email(
 ):
     split_at = email.split("@")
 
+    if len(email) < 9:
+        return False
+
     if len(split_at) != 2:
         return False
     
