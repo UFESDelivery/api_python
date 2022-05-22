@@ -5,6 +5,8 @@ import os
 
 import dotenv
 
+import datetime as dt
+
 import src.api_tools as apit
 import src.ddl as ddl
 import src.dml as dml
@@ -128,6 +130,88 @@ def new_user():
     return user.new(
         conn=DB_CONN,
         **kwargs
+    )
+
+
+@APP.route("/order/get", methods=["POST"])
+def get_customized_orders():
+    json: dict = request.get_json()
+
+    last_date_modify: dict = json.get("dt_ultima_alteracao")
+    last_min_date_modify: dict = json.get("dt_min_ultima_alteracao")
+    last_max_date_modify: dict = json.get("dt_max_ultima_alteracao")
+
+    date = None
+    min_date = None
+    max_date = None
+
+    if last_date_modify is not None:
+        date = dt.datetime(
+            day=last_date_modify.get("dia"),
+            month=last_date_modify.get("mes"),
+            year=last_date_modify.get("ano"),
+            hour=last_date_modify.get("hora"),
+            minute=last_date_modify.get("minuto"),
+            second=last_date_modify.get("segundo"),
+            microsecond=last_date_modify.get("microsegundo")
+        )
+
+    if last_min_date_modify is not None:
+        min_date = dt.datetime(
+            day=last_min_date_modify.get("dia"),
+            month=last_min_date_modify.get("mes"),
+            year=last_min_date_modify.get("ano"),
+            hour=last_min_date_modify.get("hora"),
+            minute=last_min_date_modify.get("minuto"),
+            second=last_min_date_modify.get("segundo"),
+            microsecond=last_min_date_modify.get("microsegundo")
+        )
+
+    if last_max_date_modify is not None:
+        max_date = dt.datetime(
+            day=last_max_date_modify.get("dia"),
+            month=last_max_date_modify.get("mes"),
+            year=last_max_date_modify.get("ano"),
+            hour=last_max_date_modify.get("hora"),
+            minute=last_max_date_modify.get("minuto"),
+            second=last_max_date_modify.get("segundo"),
+            microsecond=last_max_date_modify.get("microsegundo")
+        )
+
+    orders = order.get(
+        conn=DB_CONN,
+        id_order=json.get("cd_pedido"),
+        id_user=json.get("cd_usuario"),
+        id_status=json.get("cd_status"),
+        min_id_status=json.get("cd_min_status"),
+        max_id_status=json.get("cd_max_status"),
+        value_order=json.get("vl_total_compra"),
+        min_value_order=json.get("vl_min_total_compra"),
+        max_value_order=json.get("vl_max_total_compra"),
+        date=date,
+        min_date=min_date,
+        max_date=max_date,
+        closed_order=json.get("fl_pedidos_fechados")
+    )
+
+    if len(orders) > 0:
+        response = {
+            "message": "Todos os pedidos encontrados",
+            "result": orders
+        }
+
+        status = 200
+    
+    else:
+        response = {
+            "message": "Nenhum pedido encontrado"
+        }
+
+        status = 400
+
+    return apit.get_response(
+        response=response,
+        status=status
     )
 
 
