@@ -1,5 +1,3 @@
-import re
-
 from sqlalchemy.engine import Connection
 
 import src.api_tools as apit
@@ -32,20 +30,20 @@ def get(
     where = []
 
     if id_user is not None:
-        where.append(f" AND cd_usuario = {id_user}")
+        where.append(f"cd_usuario = {id_user}")
     
     else:
         if id_address is not None:
-            where.append(f" AND cd_endereco = {id_address}")
+            where.append(f"cd_endereco = {id_address}")
         
         if realy_user_email is not None:
-            where.append(f" AND ds_email {equal_operator} '{realy_user_email}'")
+            where.append(f"ds_email {equal_operator} '{realy_user_email}'")
         
         if realy_user_name is not None:
-            where.append(f" AND no_usuario {equal_operator} '{realy_user_name}'")
+            where.append(f"no_usuario {equal_operator} '{realy_user_name}'")
         
         if user_type is not None:
-            where.append(f" AND cd_tipo_usuario = {user_type}")
+            where.append(f"cd_tipo_usuario = {user_type}")
 
     columns = [
         "cd_usuario",
@@ -57,14 +55,13 @@ def get(
     query_exists = f"""
         SELECT {", ".join(columns)}
         FROM {table_name}
-        WHERE 1 = 1
-            {"".join(where)}
+        WHERE {" AND ".join(where)}
     """
 
     ref_user = conn.execute(query_exists)
 
     return apit.rows_in_list_dict(ref_user)
-    
+
 
 def new(
     conn: Connection,
@@ -82,19 +79,18 @@ def new(
     realy_user_name = apit.treat_str(user_name)
     realy_user_adm_email = apit.treat_str(user_adm_email)
 
-    regex_email = r"([A-Za-z0-9]+)(\.[A-za-z0-9]*)@([A-Za-z0-9]+)(\.[A-za-z0-9]*)"
-
     erro = None
+    
+    address_exists = address.get(
+        conn=conn,
+        id_address=id_address
+    )
 
-    try:
-        address.get(
-            conn=conn,
-            id_address=id_address
-        )[0]["cd_endereco"]
-    except:
+    if len(address_exists) == 0:
         erro = f"O cd_endereco '{id_address}' não foi encontrado"
+
     else:
-        if not re.search(regex_email, realy_user_email):
+        if not apit.is_valid_email(realy_user_email):
             erro = f"O email '{realy_user_email}' é inválido"
         
         elif realy_user_name is None or len(realy_user_name) < 4:
@@ -145,20 +141,26 @@ def new(
         "cd_token": token
     }
 
-    query_insert = apit.insert_into_formater(
-        table_name=table_name,
-        columns=cv.keys()
+    email_exists = get(
+        conn=conn,
+        user_email=realy_user_email,
+        like=False
     )
 
-    try:
-        conn.exec_driver_sql(query_insert, cv)
-    except:
+    if len(email_exists) > 0:
         return apit.get_response(
             response={
                 "message": f"O ds_email '{realy_user_email}' já está cadastrado"
             },
             status=409
         )
+
+    query_insert = apit.insert_into_formater(
+        table_name=table_name,
+        columns=cv.keys()
+    )
+
+    conn.exec_driver_sql(query_insert, cv)
 
     id_user = get(
         conn=conn,
