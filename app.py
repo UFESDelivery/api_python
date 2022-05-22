@@ -11,6 +11,7 @@ import src.api_tools as apit
 import src.ddl as ddl
 import src.dml as dml
 import src.controllers.user as user
+import src.controllers.state as state
 import src.controllers.address as address
 import src.controllers.city as city
 import src.controllers.order as order
@@ -78,6 +79,57 @@ def reset_db():
             "message": "O banco de dados foi redefinido para o padrão inicial"
         },
         status=200
+    )
+
+
+@APP.route("/state/get/<uf>", methods=["GET"])
+def get_all_states(
+    uf: str
+):
+    realy_uf = apit.treat_str(uf)
+
+    response = {}
+    
+    if realy_uf == "ALL":
+        all_states = state.get(
+            conn=DB_CONN,
+            like=False
+        )
+
+        qtt_states = len(all_states)
+
+        if qtt_states > 0:
+            response["message"] = f"'{qtt_states}' estados encontrados"
+            response["result"] = all_states
+            status = 200
+        
+        else:
+            response["message"] = "Nenhum estado encontrado"
+            status = 400
+
+    elif realy_uf is not None:
+        one_state = state.get(
+            conn=DB_CONN,
+            id_uf=realy_uf,
+            like=False
+        )
+
+        if len(one_state) > 0:
+            response["message"] = f"Estado encontrado"
+            response["result"] = one_state[0]
+            status = 200
+        
+        else:
+            response["message"] = f"O cd_uf '{realy_uf}' não foi encontrado"
+            status = 400
+
+    else:
+        response["message"] = f"Parâmetros incorretos"
+        status = 400
+
+    return apit.get_response(
+        response=response,
+        status=status
     )
 
 
