@@ -48,8 +48,8 @@ def get(
 
 def new(
     conn: Connection,
-    name: str = None,
-    uf: str = None,
+    name: str,
+    uf: str,
 ):
     table_name = "cidade"
 
