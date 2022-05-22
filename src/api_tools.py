@@ -308,3 +308,32 @@ def table_exists(
     table_name: str
 ):
     return conn.dialect.has_table(conn, table_name)
+
+
+def is_valid_email(
+    email: str
+):
+    split_at = email.split("@")
+
+    if len(split_at) != 2:
+        return False
+    
+    if " " in email:
+        return False
+
+    if "." not in split_at[1]:
+        return False
+    
+    if treat_int(email[0]) is not None:
+        return False
+    
+    if treat_int(split_at[1][0]) is not None:
+        return False
+
+    if email[0] == ".":
+        return False
+    
+    if split_at[1][0] == ".":
+        return False
+
+    return True
