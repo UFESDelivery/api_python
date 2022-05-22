@@ -26,55 +26,54 @@ def get(
     where = []
 
     if id_order is not None:
-        where.append(f" AND cd_pedido = {id_order}")
+        where.append(f"cd_pedido = {id_order}")
     
     else:
         if id_user is not None:
-            where.append(f" AND cd_usuario = {id_user}")
+            where.append(f"cd_usuario = {id_user}")
         
         if id_status is not None:
-            where.append(f" AND cd_status = {id_status}")
+            where.append(f"cd_status = {id_status}")
         
         if min_id_status is not None:
-            where.append(f" AND cd_status >= {min_id_status}")
+            where.append(f"cd_status >= {min_id_status}")
         
         if max_id_status is not None:
-            where.append(f" AND cd_status <= {max_id_status}")
+            where.append(f"cd_status <= {max_id_status}")
         
         if value_order is not None:
-            where.append(f" AND vl_total_compra = {value_order}")
+            where.append(f"vl_total_compra = {value_order}")
         
         if min_value_order is not None:
-            where.append(f" AND vl_total_compra >= {min_value_order}")
+            where.append(f"vl_total_compra >= {min_value_order}")
 
         if max_value_order is not None:
-            where.append(f" AND vl_total_compra <= {max_value_order}")
+            where.append(f"vl_total_compra <= {max_value_order}")
         
         if date is not None:
             format_date = apit.format_date(date)
 
-            where.append(f" AND dt_ultima_alteracao = {format_date}")
+            where.append(f"dt_ultima_alteracao = {format_date}")
         
         if min_date is not None:
             format_date = apit.format_date(min_date)
 
-            where.append(f" AND dt_ultima_alteracao >= {format_date}")
+            where.append(f"dt_ultima_alteracao >= {format_date}")
         
         if max_date is not None:
             format_date = apit.format_date(max_date)
 
-            where.append(f" AND dt_ultima_alteracao <= {format_date}")
+            where.append(f"dt_ultima_alteracao <= {format_date}")
         
         if closed_order:
-            where.append(f" AND dt_fim IS NOT NULL")
+            where.append(f"dt_fim IS NOT NULL")
         else:
-            where.append(f" AND dt_fim IS NULL")
+            where.append(f"dt_fim IS NULL")
 
     query = f"""
         SELECT *
         FROM {table_name}
-        WHERE 1 = 1
-            {"".join(where)}
+        WHERE {" AND ".join(where)}
     """
 
     ref_order = conn.execute(query)
