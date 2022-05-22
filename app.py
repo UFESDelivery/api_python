@@ -215,16 +215,15 @@ def get_customized_orders():
     )
 
 
-@APP.route("/order/get/all", methods=["GET"])
 @APP.route("/order/get/<id_>", methods=["GET"])
 def get_all_order(
-    id_: int | str = None
+    id_: int | str
 ):
     treat_id = apit.treat_int(id_)
 
     response = {}
     
-    if id_ is None:
+    if str(id_) == "all":
         all_orders = order.get(DB_CONN)
 
         if bool(all_orders):
