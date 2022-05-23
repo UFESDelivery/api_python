@@ -142,7 +142,7 @@ def new_city():
         "uf": json.get("uf")
     }
 
-    if apit.validate_parameters(kwargs):
+    if not apit.validate_parameters(kwargs):
         return apit.get_response(
             response={
                 "message": "Parâmetros incorretos"
@@ -168,7 +168,7 @@ def new_address():
         "postal_code": apit.treat_postal_code(json.get("cep"))
     }
 
-    if apit.validate_parameters(kwargs):
+    if not apit.validate_parameters(kwargs):
         return apit.get_response(
             response={
                 "message": "Parâmetros incorretos"
@@ -201,7 +201,7 @@ def new_user():
         "user_adm_password"
     ]
 
-    if apit.validate_parameters(kwargs, ignore_kwargs):
+    if not apit.validate_parameters(kwargs, ignore_kwargs):
         return apit.get_response(
             response={
                 "message": "Parâmetros incorretos"
@@ -353,7 +353,7 @@ def new_order():
         "id_user": apit.treat_int(json.get("cd_usuario"))
     }
 
-    if apit.validate_parameters(kwargs):
+    if not apit.validate_parameters(kwargs):
         return apit.get_response(
             response={
                 "message": "Parâmetros incorretos"
@@ -426,7 +426,7 @@ def new_product_order():
         "qtt_items": apit.treat_int(json.get("qt_itens"))
     }
 
-    if apit.validate_parameters(kwargs):
+    if not apit.validate_parameters(kwargs):
         return apit.get_response(
             response={
                 "message": "Parâmetros incorretos"
