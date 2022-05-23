@@ -142,6 +142,14 @@ def new_city():
         "uf": json.get("uf")
     }
 
+    if apit.validate_parameters(kwargs):
+        return apit.get_response(
+            response={
+                "message": "Parâmetros incorretos"
+            },
+            status=400
+        )
+
     return city.new(
         conn=DB_CONN,
         **kwargs
@@ -159,6 +167,14 @@ def new_address():
         "number": json.get("numero"),
         "postal_code": apit.treat_postal_code(json.get("cep"))
     }
+
+    if apit.validate_parameters(kwargs):
+        return apit.get_response(
+            response={
+                "message": "Parâmetros incorretos"
+            },
+            status=400
+        )
 
     return address.new(
         conn=DB_CONN,
@@ -179,6 +195,19 @@ def new_user():
         "user_adm_email": json.get("email_adm"),
         "user_adm_password": json.get("senha_adm")
     }
+
+    ignore_kwargs = [
+        "user_adm_email",
+        "user_adm_password"
+    ]
+
+    if apit.validate_parameters(kwargs, ignore_kwargs):
+        return apit.get_response(
+            response={
+                "message": "Parâmetros incorretos"
+            },
+            status=400
+        )
 
     return user.new(
         conn=DB_CONN,
@@ -324,6 +353,14 @@ def new_order():
         "id_user": apit.treat_int(json.get("cd_usuario"))
     }
 
+    if apit.validate_parameters(kwargs):
+        return apit.get_response(
+            response={
+                "message": "Parâmetros incorretos"
+            },
+            status=400
+        )
+
     return order.new(
         conn=DB_CONN,
         **kwargs
@@ -389,14 +426,10 @@ def new_product_order():
         "qtt_items": apit.treat_int(json.get("qt_itens"))
     }
 
-    if (
-        kwargs["id_order"] is None
-        or kwargs["id_product"] is None
-        or kwargs["qtt_items"] is None
-    ):
+    if apit.validate_parameters(kwargs):
         return apit.get_response(
             response={
-                "message": "parâmetros incorretos"
+                "message": "Parâmetros incorretos"
             },
             status=400
         )
