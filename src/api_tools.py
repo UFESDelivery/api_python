@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Any, Iterable
 
 from flask import Response
 
@@ -340,3 +340,10 @@ def is_valid_email(
         return False
 
     return True
+
+
+def validate_parameters(
+    dict_args: dict[str, Any],
+    ignore_args: Iterable[str] = []
+):
+    return None in [v for k, v in dict_args.items() if k not in ignore_args]
