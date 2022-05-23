@@ -124,7 +124,7 @@ def get_all_states(
             status = 400
 
     else:
-        response["message"] = f"Parâmetros incorretos"
+        response["message"] = f"Parâmetros incorretos ou faltando"
         status = 400
 
     return apit.get_response(
@@ -145,7 +145,7 @@ def new_city():
     if not apit.validate_parameters(kwargs):
         return apit.get_response(
             response={
-                "message": "Parâmetros incorretos"
+                "message": "Parâmetros incorretos ou faltando"
             },
             status=400
         )
@@ -171,7 +171,7 @@ def new_address():
     if not apit.validate_parameters(kwargs):
         return apit.get_response(
             response={
-                "message": "Parâmetros incorretos"
+                "message": "Parâmetros incorretos ou faltando"
             },
             status=400
         )
@@ -204,7 +204,7 @@ def new_user():
     if not apit.validate_parameters(kwargs, ignore_kwargs):
         return apit.get_response(
             response={
-                "message": "Parâmetros incorretos"
+                "message": "Parâmetros incorretos ou faltando"
             },
             status=400
         )
@@ -336,7 +336,7 @@ def get_all_order(
             status = 200
     
     else:
-        response["message"] = f"Parâmetros incorretos"
+        response["message"] = f"Parâmetros incorretos ou faltando"
         status = 400
 
     return apit.get_response(
@@ -356,7 +356,7 @@ def new_order():
     if not apit.validate_parameters(kwargs):
         return apit.get_response(
             response={
-                "message": "Parâmetros incorretos"
+                "message": "Parâmetros incorretos ou faltando"
             },
             status=400
         )
@@ -407,7 +407,7 @@ def get_all_product(
             status = 400
 
     else:
-        response["message"] = f"Parâmetros incorretos"
+        response["message"] = f"Parâmetros incorretos ou faltando"
         status = 400
 
     return apit.get_response(
@@ -429,7 +429,7 @@ def new_product_order():
     if not apit.validate_parameters(kwargs):
         return apit.get_response(
             response={
-                "message": "Parâmetros incorretos"
+                "message": "Parâmetros incorretos ou faltando"
             },
             status=400
         )
