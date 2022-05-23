@@ -346,4 +346,4 @@ def validate_parameters(
     dict_args: dict[str, Any],
     ignore_args: Iterable[str] = []
 ):
-    return None in [v for k, v in dict_args.items() if k not in ignore_args]
+    return None not in [v for k, v in dict_args.items() if k not in ignore_args]
