@@ -27,11 +27,11 @@ DB_NAME = os.getenv("DB_NAME")
 DB_SERV = os.getenv("DB_SERV")
 DB_PORT = os.getenv("DB_PORT")
 
-# DB_USER = "root"
-# DB_PASS = "1234"
-# DB_NAME = "ufesdelivery"
-# DB_SERV = "localhost"
-# DB_PORT = 5070
+DB_USER = "root"
+DB_PASS = "1234"
+DB_NAME = "ufesdelivery"
+DB_SERV = "localhost"
+DB_PORT = 5070
 
 DB_CONN = apit.conn_mysql(
     username=DB_USER,
@@ -179,6 +179,58 @@ def new_address():
     return address.new(
         conn=DB_CONN,
         **kwargs
+    )
+
+
+@APP.route("/user/get/client/<id_>", methods=["GET"])
+def get_user(
+    id_: int | str
+):
+    treat_id = apit.treat_int(id_)
+
+    response = {}
+    
+    if str(id_) == "all":
+        all_clients = user.get(
+            conn=DB_CONN,
+            user_type=1,
+            like=False
+        )
+
+        qtt_clients = len(all_clients)
+
+        if qtt_clients > 0:
+            response["message"] = f"'{qtt_clients}' clientes encontrados"
+            response["result"] = all_clients
+            status = 200
+        
+        else:
+            response["message"] = "Nenhum cliente encontrado"
+            status = 400
+
+    elif treat_id is not None:
+        one_client = user.get(
+            conn=DB_CONN,
+            id_user=treat_id,
+            like=False
+        )
+
+        if len(one_client) > 0 and one_client[0].get("cd_tipo_usuario") == 1:
+            response["message"] = f"Cliente encontrado"
+            response["result"] = one_client[0]
+            status = 200
+        
+        else:
+            response["message"] = f"O cd_cliente '{treat_id}' não foi encontrado"
+            status = 400
+
+    else:
+        response["message"] = f"Parâmetros incorretos ou faltando"
+        status = 400
+
+    return apit.get_response(
+        response=response,
+        status=status
     )
 
 
