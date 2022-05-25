@@ -1,6 +1,8 @@
 from flask import Flask
 from flask import request
 
+from flask_cors import CORS
+
 import os
 
 import dotenv
@@ -42,6 +44,7 @@ DB_CONN = apit.conn_mysql(
 )
 
 APP = Flask(__name__)
+CORS(APP)
 
 
 @APP.route("/", methods=["GET"])
