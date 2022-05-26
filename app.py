@@ -183,10 +183,15 @@ def new_address():
         "street_name": json.get("logradouro"),
         "district_name": json.get("bairro"),
         "number": json.get("numero"),
-        "postal_code": apit.treat_postal_code(json.get("cep"))
+        "postal_code": apit.treat_postal_code(json.get("cep")),
+        "complement": json.get("ds_complemento")
     }
 
-    if not apit.validate_parameters(kwargs):
+    ignore_kwargs = [
+        "complement"
+    ]
+
+    if not apit.validate_parameters(kwargs, ignore_kwargs):
         return apit.get_response(
             response={
                 "message": "Parâmetros incorretos ou faltando"
