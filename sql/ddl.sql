@@ -35,12 +35,13 @@ CREATE TABLE IF NOT EXISTS cidade (
 
 
 CREATE TABLE IF NOT EXISTS endereco (
-    cd_endereco     INTEGER NOT NULL AUTO_INCREMENT
-    , cd_cidade     INTEGER
-    , no_logradouro VARCHAR(100) NOT NULL
-    , no_bairro     VARCHAR(100) NOT NULL
-    , ds_numero     VARCHAR(10)
-    , nu_cep        CHAR(8)
+    cd_endereco         INTEGER NOT NULL AUTO_INCREMENT
+    , cd_cidade         INTEGER NOT NULL
+    , no_logradouro     VARCHAR(100) NOT NULL
+    , no_bairro         VARCHAR(100) NOT NULL
+    , ds_complemento    VARCHAR(100)
+    , ds_numero         VARCHAR(10)
+    , nu_cep            CHAR(8)
 
     , CONSTRAINT pk_endereco
         PRIMARY KEY (cd_endereco)
