@@ -35,29 +35,29 @@ def get(
     where = []
 
     if id_address is not None:
-        where.append(f" AND cd_endereco = {id_address}")
+        where.append(f"cd_endereco = {id_address}")
     
     else:
         if id_city is not None:
-            where.append(f" AND cd_cidade = {id_city}")
+            where.append(f"cd_cidade = {id_city}")
         
         if realy_district_name is not None:
-            where.append(f" AND no_bairro {equal_operator} '{realy_district_name}'")
+            where.append(f"no_bairro {equal_operator} '{realy_district_name}'")
         
         if realy_street_name is not None:
-            where.append(f" AND no_logradouro {equal_operator} '{realy_street_name}'")
+            where.append(f"no_logradouro {equal_operator} '{realy_street_name}'")
         
         if realy_postal_code is not None:
-            where.append(f" AND nu_cep {equal_operator} '{realy_postal_code}'")
+            where.append(f"nu_cep {equal_operator} '{realy_postal_code}'")
         
         if realy_number is not None:
-            where.append(f" AND ds_numero {equal_operator} '{realy_number}'")
+            where.append(f"ds_numero {equal_operator} '{realy_number}'")
 
     query_exists = f"""
         SELECT *
         FROM {table_name}
         WHERE 1 = 1
-            {"".join(where)}
+            {" AND ".join(where)}
     """
 
     ref_address = conn.execute(query_exists)
@@ -72,12 +72,14 @@ def new(
     district_name: str,
     number: str,
     postal_code: str,
+    complement: str = None
 ):
     table_name = "endereco"
 
     realy_district_name = apit.treat_str(district_name)
     realy_street_name = apit.treat_str(street_name)
     realy_postal_code = apit.treat_str(postal_code)
+    realy_complement = apit.treat_str(complement)
     realy_number = apit.treat_str(number)
 
     error = None
@@ -139,7 +141,8 @@ def new(
         "no_bairro": realy_district_name,
         "no_logradouro": realy_street_name,
         "nu_cep": realy_postal_code,
-        "ds_numero": realy_number
+        "ds_numero": realy_number,
+        "ds_complemento": realy_complement
     }
 
     query_insert = apit.insert_into_formater(
