@@ -29,11 +29,26 @@ DB_NAME = os.getenv("DB_NAME")
 DB_SERV = os.getenv("DB_SERV")
 DB_PORT = os.getenv("DB_PORT")
 
-DB_USER = "root"
-DB_PASS = "1234"
-DB_NAME = "ufesdelivery"
-DB_SERV = "localhost"
-DB_PORT = 5070
+# DB_USER = "root"
+# DB_PASS = "1234"
+# DB_NAME = "ufesdelivery"
+# DB_SERV = "localhost"
+# DB_PORT = 5070
+
+APP_PORT = os.getenv("APP_PORT")
+APP_HOST = os.getenv("APP_HOST")
+APP_DEBUG = os.getenv("APP_DEBUG")
+
+if APP_PORT is None:
+    APP_PORT = 80
+
+if APP_HOST is None:
+    APP_HOST = "0.0.0.0"
+
+if APP_DEBUG is None:
+    APP_DEBUG = False
+else:
+    APP_DEBUG = True
 
 DB_CONN = apit.conn_mysql(
     username=DB_USER,
@@ -504,4 +519,4 @@ if __name__ == "__main__":
 
     print(msg)
 
-    APP.run(debug=True, host="0.0.0.0")
+    APP.run(debug=APP_DEBUG, host=APP_HOST, port=APP_PORT)
