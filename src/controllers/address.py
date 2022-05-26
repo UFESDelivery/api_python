@@ -84,12 +84,12 @@ def new(
 
     error = None
 
-    try:
-        city.get(
-            conn=conn,
-            id_city=id_city
-        )[0]["cd_cidade"]
-    except:
+    get_city = city.get(
+        conn=conn,
+        id_city=id_city
+    )
+
+    if len(get_city) == 0:
         error = f"O cd_cidade '{id_city}' não existe"
     else:
         if realy_district_name is None or len(realy_district_name) < 5:
@@ -122,16 +122,13 @@ def new(
             AND nu_cep = '{realy_postal_code}'
     """
 
-    try:
-        id_address = conn.execute(query_address_exists).fetchone()[0]
-    except:
-        id_address = None
+    id_address = conn.execute(query_address_exists).fetchone()
 
     if id_address is not None:
         return apit.get_response(
             response={
                 "message": f"O endereço '{realy_street_name}' já está cadastrado",
-                "id_address": id_address
+                "id_address": id_address[0]
             },
             status=409
         )
