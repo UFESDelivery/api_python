@@ -1,0 +1,1 @@
+web: gunicorn -b :$APP_PORT app:APP
