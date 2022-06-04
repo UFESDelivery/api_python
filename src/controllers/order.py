@@ -25,6 +25,8 @@ def get(
 
     where = []
 
+    dates = {}
+
     if id_order is not None:
         where.append(f"cd_pedido = {id_order}")
     
@@ -51,19 +53,19 @@ def get(
             where.append(f"vl_total_compra <= {max_value_order}")
         
         if date is not None:
-            format_date = apit.format_date(date)
+            dates["date"] = date
 
-            where.append(f"dt_ultima_alteracao = {format_date}")
-        
-        if min_date is not None:
-            format_date = apit.format_date(min_date)
+            where.append(f"dt_ultima_alteracao = %(date)s")
+        else:
+            if min_date is not None:
+                dates["min_date"] = min_date
 
-            where.append(f"dt_ultima_alteracao >= {format_date}")
-        
-        if max_date is not None:
-            format_date = apit.format_date(max_date)
+                where.append(f"dt_ultima_alteracao >= %(min_date)s")
+            
+            if max_date is not None:
+                dates["max_date"] = max_date
 
-            where.append(f"dt_ultima_alteracao <= {format_date}")
+                where.append(f"dt_ultima_alteracao <= %(max_date)s")
         
         if closed_order:
             where.append(f"dt_fim IS NOT NULL")
@@ -76,7 +78,9 @@ def get(
         WHERE {" AND ".join(where)}
     """
 
-    ref_order = conn.execute(query)
+    print(query)
+
+    ref_order = conn.execute(query, dates)
 
     return apit.rows_in_list_dict(ref_order)
 

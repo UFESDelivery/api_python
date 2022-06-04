@@ -285,38 +285,49 @@ def get_customized_orders():
     min_date = None
     max_date = None
 
+    default_date = dt.datetime(1, 1, 1, 0, 0, 0, 0)
+
     if last_date_modify is not None:
         date = dt.datetime(
-            day=last_date_modify.get("dia"),
-            month=last_date_modify.get("mes"),
-            year=last_date_modify.get("ano"),
-            hour=last_date_modify.get("hora"),
-            minute=last_date_modify.get("minuto"),
-            second=last_date_modify.get("segundo"),
-            microsecond=last_date_modify.get("microsegundo")
+            day=last_date_modify.get("dia") or 1,
+            month=last_date_modify.get("mes") or 1,
+            year=last_date_modify.get("ano") or 1,
+            hour=last_date_modify.get("hora") or 0,
+            minute=last_date_modify.get("minuto") or 0,
+            second=last_date_modify.get("segundo") or 0,
+            microsecond=last_date_modify.get("microsegundo") or 0
         )
+
+        if date == default_date:
+            date = None
 
     if last_min_date_modify is not None:
         min_date = dt.datetime(
-            day=last_min_date_modify.get("dia"),
-            month=last_min_date_modify.get("mes"),
-            year=last_min_date_modify.get("ano"),
-            hour=last_min_date_modify.get("hora"),
-            minute=last_min_date_modify.get("minuto"),
-            second=last_min_date_modify.get("segundo"),
-            microsecond=last_min_date_modify.get("microsegundo")
+            day=last_min_date_modify.get("dia") or 1,
+            month=last_min_date_modify.get("mes") or 1,
+            year=last_min_date_modify.get("ano") or 1,
+            hour=last_min_date_modify.get("hora") or 0,
+            minute=last_min_date_modify.get("minuto") or 0,
+            second=last_min_date_modify.get("segundo") or 0,
+            microsecond=last_min_date_modify.get("microsegundo") or 0
         )
+
+        if min_date == default_date:
+            min_date = None
 
     if last_max_date_modify is not None:
         max_date = dt.datetime(
-            day=last_max_date_modify.get("dia"),
-            month=last_max_date_modify.get("mes"),
-            year=last_max_date_modify.get("ano"),
-            hour=last_max_date_modify.get("hora"),
-            minute=last_max_date_modify.get("minuto"),
-            second=last_max_date_modify.get("segundo"),
-            microsecond=last_max_date_modify.get("microsegundo")
+            day=last_max_date_modify.get("dia") or 1,
+            month=last_max_date_modify.get("mes") or 1,
+            year=last_max_date_modify.get("ano") or 1,
+            hour=last_max_date_modify.get("hora") or 0,
+            minute=last_max_date_modify.get("minuto") or 0,
+            second=last_max_date_modify.get("segundo") or 0,
+            microsecond=last_max_date_modify.get("microsegundo") or 0
         )
+
+        if max_date == default_date:
+            max_date = None
 
     orders = order.get(
         conn=DB_CONN,
@@ -334,9 +345,11 @@ def get_customized_orders():
         closed_order=json.get("fl_pedidos_fechados")
     )
 
-    if len(orders) > 0:
+    qtt_orders = len(orders)
+
+    if qtt_orders > 0:
         response = {
-            "message": "Todos os pedidos encontrados",
+            "message": f"'{qtt_orders}' pedidos encontrados",
             "result": orders
         }
 
