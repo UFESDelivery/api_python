@@ -78,8 +78,6 @@ def get(
         WHERE {" AND ".join(where)}
     """
 
-    print(query)
-
     ref_order = conn.execute(query, dates)
 
     return apit.rows_in_list_dict(ref_order)
