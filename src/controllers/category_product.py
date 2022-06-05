@@ -5,9 +5,9 @@ import src.api_tools as apit
 
 def get(
     conn: Connection,
-    id_category: int,
-    category_name: str,
-    like: bool = False
+    id_category: int = None,
+    category_name: str = None,
+    like: bool = True
 ):
     table_name = "categoria_produto"
 
@@ -20,22 +20,25 @@ def get(
 
         equal_operator = "LIKE"
 
-    where = []
+    where = ["1 = 1"]
+
+    values = {}
 
     if id_category is not None:
-        where.append(f"AND cd_categoria = {id_category}")
+        values["id_category"] = id_category
+        where.append("cd_categoria = %(id_category)s")
     
     else:
         if realy_category_name is not None:
-            where.append(f"AND ds_categoria {equal_operator} {realy_category_name}")
+            values["realy_category_name"] = realy_category_name
+            where.append(f"ds_categoria {equal_operator} %(realy_category_name)s")
     
     query = f"""
         SELECT *
         FROM {table_name}
-        WHERE 1 = 1
-            {" ".join(where)}
+        WHERE {" AND ".join(where)}
     """
 
-    ref_category_product = conn.execute(query)
+    ref_category_product = conn.exec_driver_sql(query, values)
 
     return apit.rows_in_list_dict(ref_category_product)

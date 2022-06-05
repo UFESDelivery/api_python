@@ -27,23 +27,30 @@ def get(
 
         equal_operator = "LIKE"
     
-    where = []
+    where = ["1 = 1"]
+
+    values = {}
 
     if id_user is not None:
-        where.append(f"cd_usuario = {id_user}")
+        values["id_user"] = id_user
+        where.append("cd_usuario = %(id_user)s")
     
     else:
         if id_address is not None:
-            where.append(f"cd_endereco = {id_address}")
+            values["id_address"] = id_address
+            where.append("cd_endereco = %(id_address)s")
         
         if realy_user_email is not None:
-            where.append(f"ds_email {equal_operator} '{realy_user_email}'")
+            values["realy_user_email"] = realy_user_email
+            where.append(f"ds_email {equal_operator} %(realy_user_email)s")
         
         if realy_user_name is not None:
-            where.append(f"no_usuario {equal_operator} '{realy_user_name}'")
+            values["realy_user_name"] = realy_user_name
+            where.append(f"no_usuario {equal_operator} %(realy_user_name)s")
         
         if user_type is not None:
-            where.append(f"cd_tipo_usuario = {user_type}")
+            values["user_type"] = user_type
+            where.append("cd_tipo_usuario = %(user_type)s")
 
     columns = [
         "cd_usuario",
@@ -52,13 +59,13 @@ def get(
         "cd_tipo_usuario"
     ]
 
-    query_exists = f"""
+    query = f"""
         SELECT {", ".join(columns)}
         FROM {table_name}
         WHERE {" AND ".join(where)}
     """
 
-    ref_user = conn.execute(query_exists)
+    ref_user = conn.exec_driver_sql(query, values)
 
     return apit.rows_in_list_dict(ref_user)
 
@@ -81,12 +88,12 @@ def new(
 
     erro = None
     
-    address_exists = address.get(
+    addresses = address.get(
         conn=conn,
         id_address=id_address
     )
 
-    if len(address_exists) == 0:
+    if len(addresses) == 0:
         erro = f"O cd_endereco '{id_address}' não foi encontrado"
 
     else:
@@ -116,7 +123,7 @@ def new(
 
         elif user_type > 1 and not apit.authenticate(
             conn=conn,
-            type=4,
+            type_=4,
             email=realy_user_adm_email,
             password=user_adm_password
         ):
@@ -127,7 +134,21 @@ def new(
             response={
                 "message": erro
             },
-            status=500
+            status=400
+        )
+    
+    emails = get(
+        conn=conn,
+        user_email=realy_user_email,
+        like=False
+    )
+
+    if len(emails) > 0:
+        return apit.get_response(
+            response={
+                "message": f"O ds_email '{realy_user_email}' já está cadastrado"
+            },
+            status=409
         )
     
     token = apit.generate_token(conn)
@@ -141,26 +162,14 @@ def new(
         "cd_token": token
     }
 
-    email_exists = get(
-        conn=conn,
-        user_email=realy_user_email,
-        like=False
-    )
-
-    if len(email_exists) > 0:
-        return apit.get_response(
-            response={
-                "message": f"O ds_email '{realy_user_email}' já está cadastrado"
-            },
-            status=409
-        )
-
     query_insert = apit.insert_into_formater(
         table_name=table_name,
         columns=cv.keys()
     )
 
     conn.exec_driver_sql(query_insert, cv)
+
+    apit.commit_db(conn)
 
     id_user = get(
         conn=conn,

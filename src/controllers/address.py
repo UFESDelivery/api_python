@@ -32,35 +32,42 @@ def get(
 
         equal_operator = "LIKE"
     
-    where = []
+    where = ["1 = 1"]
+
+    values = {}
 
     if id_address is not None:
-        where.append(f"cd_endereco = {id_address}")
+        values["id_address"] = id_address
+        where.append("cd_endereco = %(id_address)s")
     
     else:
         if id_city is not None:
-            where.append(f"cd_cidade = {id_city}")
+            values["id_city"] = id_city
+            where.append("cd_cidade = %(id_city)s")
         
         if realy_district_name is not None:
-            where.append(f"no_bairro {equal_operator} '{realy_district_name}'")
+            values["realy_district_name"] = realy_district_name
+            where.append(f"no_bairro {equal_operator} %(realy_district_name)s")
         
         if realy_street_name is not None:
-            where.append(f"no_logradouro {equal_operator} '{realy_street_name}'")
+            values["realy_street_name"] = realy_street_name
+            where.append(f"no_logradouro {equal_operator} %(realy_street_name)s")
         
         if realy_postal_code is not None:
-            where.append(f"nu_cep {equal_operator} '{realy_postal_code}'")
+            values["realy_postal_code"] = realy_postal_code
+            where.append(f"nu_cep {equal_operator} %(realy_postal_code)s")
         
         if realy_number is not None:
-            where.append(f"ds_numero {equal_operator} '{realy_number}'")
+            values["realy_number"] = realy_number
+            where.append(f"ds_numero {equal_operator} %(realy_number)s")
 
-    query_exists = f"""
+    query = f"""
         SELECT *
         FROM {table_name}
-        WHERE 1 = 1
-            {" AND ".join(where)}
+        WHERE {" AND ".join(where)}
     """
 
-    ref_address = conn.execute(query_exists)
+    ref_address = conn.exec_driver_sql(query, values)
 
     return apit.rows_in_list_dict(ref_address)
 
@@ -112,23 +119,21 @@ def new(
             status=500
         )
     
-    query_address_exists = f"""
-        SELECT cd_endereco
-        FROM {table_name}
-        WHERE cd_cidade = {id_city}
-            AND no_logradouro = '{realy_street_name}'
-            AND no_bairro = '{realy_district_name}'
-            AND ds_numero = '{realy_number}'
-            AND nu_cep = '{realy_postal_code}'
-    """
+    address = get(
+        conn=conn,
+        id_city=id_city,
+        street_name=realy_street_name,
+        district_name=realy_district_name,
+        number=realy_number,
+        postal_code=realy_postal_code,
+        like=False
+    )
 
-    id_address = conn.execute(query_address_exists).fetchone()
-
-    if id_address is not None:
+    if len(address) > 0:
         return apit.get_response(
             response={
                 "message": f"O endereço '{realy_street_name}' já está cadastrado",
-                "id_address": id_address[0]
+                "id_address": address[0]["cd_endereco"]
             },
             status=409
         )
@@ -148,6 +153,8 @@ def new(
     )
 
     conn.exec_driver_sql(query_insert, cv)
+
+    apit.commit_db(conn)
 
     id_address = get(
         conn=conn,

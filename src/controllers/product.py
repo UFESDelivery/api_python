@@ -18,7 +18,7 @@ def get(
     qtt_storege: int = None,
     min_qtt_storege: int = None,
     max_qtt_storege: int = None,
-    like: bool = False
+    like: bool = True
 ):
     table_name = "produto"
 
@@ -31,44 +31,56 @@ def get(
 
         equal_operator = "LIKE"
 
-    where = []
+    where = ["1 = 1"]
+
+    values = {}
 
     if id_product is not None:
-        where.append(f"AND cd_produto = {id_product}")
+        values["id_product"] = id_product
+        where.append("cd_produto = %(id_product)s")
 
     else:
         if id_category is not None:
-            where.append(f"AND cd_categoria = {id_category}")
+            values["id_category"] = id_category
+            where.append("cd_categoria = %(id_category)s")
 
         if realy_product_name is not None:
-            where.append(f"AND no_produto {equal_operator} '{realy_product_name}'")
+            values["realy_product_name"] = realy_product_name
+            where.append(f"no_produto {equal_operator} %(realy_product_name)s")
 
         if value_unit is not None:
-            where.append(f"AND vl_unitario = {value_unit}")
+            values["value_unit"] = value_unit
+            where.append("vl_unitario = %(value_unit)s")
 
-        if min_value_unit is not None:
-            where.append(f"AND vl_unitario >= {min_value_unit}")
+        else:
+            if min_value_unit is not None:
+                values["min_value_unit"] = min_value_unit
+                where.append("vl_unitario >= %(min_value_unit)s")
 
-        if max_value_unit is not None:
-            where.append(f"AND vl_unitario <= {max_value_unit}")
+            if max_value_unit is not None:
+                values["max_value_unit"] = max_value_unit
+                where.append("vl_unitario <= %(max_value_unit)s")
 
         if qtt_storege is not None:
-            where.append(f"AND qt_estoque = {qtt_storege}")
+            values["qtt_storege"] = qtt_storege
+            where.append("qt_estoque = %(qtt_storege)s")
+        
+        else:
+            if min_qtt_storege is not None:
+                values["min_qtt_storege"] = min_qtt_storege
+                where.append("qt_estoque >= %(min_qtt_storege)s")
 
-        if min_qtt_storege is not None:
-            where.append(f"AND qt_estoque >= {min_qtt_storege}")
-
-        if max_qtt_storege is not None:
-            where.append(f"AND qt_estoque <= {max_qtt_storege}")
+            if max_qtt_storege is not None:
+                values["max_qtt_storege"] = max_qtt_storege
+                where.append("qt_estoque <= %(max_qtt_storege)s")
     
     query = f"""
         SELECT *
         FROM {table_name}
-        WHERE 1 = 1
-            {" ".join(where)}
+        WHERE {" AND ".join(where)}
     """
 
-    ref_product = conn.execute(query)
+    ref_product = conn.exec_driver_sql(query, values)
 
     return apit.rows_in_list_dict(ref_product)
 
@@ -106,12 +118,12 @@ def new(
             status=400
         )
     
-    id_category_exists = category_product.get(
+    categories = category_product.get(
         conn=conn,
         id_category=id_category
     )
 
-    if len(id_category_exists) == 0:
+    if len(categories) == 0:
         return apit.get_response(
             response={
                 "message": f"O cd_categoria '{id_category}' não existe"
@@ -121,13 +133,13 @@ def new(
 
     current_datetime = dt.datetime.now()
 
-    product_info = get(
+    products = get(
         conn=conn,
         product_name=realy_product_name
     )
 
-    if len(product_info) > 0:
-        id_product = product_info[0]["cd_produto"]
+    if len(products) > 0:
+        id_product = products[0]["cd_produto"]
 
         return apit.get_response(
             response={
@@ -152,6 +164,8 @@ def new(
     )
 
     conn.exec_driver_sql(query_insert, cv)
+
+    apit.commit_db(conn)
 
     id_product = get(
         conn=conn,
@@ -183,46 +197,44 @@ def update(
 
     cv = {}
 
-    exists_id_product = get(
+    products = get(
         conn=conn,
         id_product=id_product
     )
     
-    if len(exists_id_product) == 0:
+    if len(products) == 0:
         error = f"O cd_produto '{id_product}' não foi encontrado"
     else:
-        cv["cd_produto"] = id_product
-
         if id_category is not None:
-            exists_category_product = category_product.get(
+            categories = category_product.get(
                 conn=conn,
                 id_category=id_category
             )
 
-            if len(exists_category_product) == 0:
+            if len(categories) == 0:
                 error = f"O cd_categoria '{id_category}' não foi encontrado"
             else:
                 cv["cd_categoria"] = id_category
 
-        if realy_product_name is not None:
+        if realy_product_name is not None and error is None:
             if len(realy_product_name) < 5:
                 error = f"O no_produto '{realy_product_name}' é inválido"
             else:
                 cv["no_produto"] = realy_product_name
 
-        if value_unit is not None:
+        if value_unit is not None and error is None:
             if value_unit < 0:
                 error = f"O vl_unitario '{value_unit}' é inválido"
             else:
                 cv["vl_unitario"] = value_unit
         
-        if qtt_storege is not None:
+        if qtt_storege is not None and error is None:
             if qtt_storege < 0:
                 error = f"A qt_estoque '{qtt_storege}' é inválida"
             else:
                 cv["qt_estoque"] = qtt_storege
 
-        if len(cv) == 0:
+        if len(cv) == 0 and error is None:
             error = f"Nenhuma coluna foi informada para alteração"
 
     if error is not None:
@@ -244,6 +256,8 @@ def update(
     )
 
     conn.exec_driver_sql(query_update, cv)
+
+    apit.commit_db(conn)
 
     return apit.get_response(
         response={

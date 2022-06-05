@@ -11,6 +11,35 @@ import random as rdm
 import json
 
 
+def commit_db(
+    conn: sa.engine.Connection
+):
+    conn.exec_driver_sql("COMMIT")
+
+
+def rollback_db(
+    conn: sa.engine.Connection
+):
+    conn.exec_driver_sql("ROLLBACK")
+
+
+def delete_from_formater(
+    table_name: str,
+    columns: Iterable[str]
+):
+    where_format = [
+        f"{k} = %({k})s"
+        for k in columns
+    ]
+
+    query_update = f"""
+        UPDATE FROM {table_name}
+        WHERE {" AND ".join(where_format)}
+    """
+
+    return query_update
+
+
 def update_from_formater(
     table_name: str,
     columns: Iterable[str],
@@ -72,53 +101,17 @@ def get_all_valid_status():
     all_status = dict(
         enumerate([
             "NOVO",
-            "ADICIONANDO ITENS",
+            "AGUARDANDO PAGAMENTO",
             "CONFIRMADO",
-            "EM PREPARACAO",
-            "SAIU PARA ENTREGA",
-            "ENTREGUE"
+            "PRONTO PARA ENTREGA",
+            "EM ROTA DE ENTREGA",
+            "ENTREGUE",
+            "CANCELADO PELO CLIENTE",
+            "CANCELADO PELO ESTABELECIMENTO"
         ], 1)
     )
 
     return all_status.keys()
-
-
-def format_date(
-    date: dt.datetime
-):
-    format_date = (
-        f"STR_TO_DATE('"
-        f"{date.day:02}"
-        f"{date.month:02}"
-        f"{date.year:04}"
-        f"{date.hour:02}"
-        f"{date.minute:02}"
-        f"{date.second:02}"
-        f"', '%d%m%Y%H%i%s')"
-    )
-
-    return format_date
-
-
-def format_values(
-    row: list,
-    join: bool = True
-):
-    values = [
-        f"'{v}'"
-        if isinstance(v, str)
-        else format_date(v)
-        if isinstance(v, dt.datetime)
-        else "NULL"
-        if v is None
-        else str(v)
-        for v in row
-    ]
-
-    if join:
-        return ", ".join(values)
-
-    return values
 
 
 def format_columns(
@@ -127,17 +120,6 @@ def format_columns(
     values = ", ".join(cols)
 
     return values
-
-
-def format_set(
-    values: dict[str]
-):
-    format_v = format_values(values.values(), False)
-    cols = values.keys()
-
-    ziped = list(zip(cols, format_v))
-
-    return ", ".join([f"{c} = {v}" for c, v in ziped])
 
 
 def datetime_to_dict(
@@ -176,7 +158,7 @@ def rows_in_list_dict(
 
 def authenticate(
     conn: sa.engine.Connection,
-    type: int,
+    type_: int,
     email: str = None,
     password: str = None,
     token: str = None,
@@ -190,7 +172,7 @@ def authenticate(
             SELECT COUNT(1)
             FROM {table_name}
             WHERE cd_token = '{token}'
-                AND cd_tipo_usuario = {type}
+                AND cd_tipo_usuario = {type_}
         """
     else:
         if not realy_email or not password:
@@ -201,7 +183,7 @@ def authenticate(
             FROM {table_name}
             WHERE ds_email = '{realy_email}'
                 AND cd_senha = '{password}'
-                AND cd_tipo_usuario = {type}
+                AND cd_tipo_usuario = {type_}
         """
 
     if conn.execute(query).fetchone()[0] == 1:

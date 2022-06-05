@@ -22,26 +22,30 @@ def get(
         realy_name = f"%{realy_name}%"
         equal_operator = "LIKE"
     
-    where = []
+    where = ["1 = 1"]
+
+    values = {}
 
     if id_city is not None:
-        where.append(f" AND cd_cidade = {id_city}")
+        values["id_city"] = id_city
+        where.append("cd_cidade = %(id_city)s")
 
     else:
         if realy_name is not None:
-            where.append(f" AND no_cidade {equal_operator} '{realy_name}'")
+            values["realy_name"] = realy_name
+            where.append(f"no_cidade {equal_operator} %(realy_name)s")
         
         if id_state is not None:
-            where.append(f" AND cd_estado = {id_state}")
+            values["id_state"] = id_state
+            where.append("cd_estado = %(id_state)s")
 
-    query_exists = f"""
+    query = f"""
         SELECT *
         FROM {table_name}
-        WHERE 1 = 1
-            {"".join(where)}
+        WHERE {" AND ".join(where)}
     """
 
-    ref_cities = conn.execute(query_exists)
+    ref_cities = conn.exec_driver_sql(query, values)
 
     return apit.rows_in_list_dict(ref_cities)
 
@@ -72,16 +76,13 @@ def new(
             status=500
         )
 
-    try:
-        id_state = state.get(
-            conn=conn,
-            id_uf=realy_uf,
-            like=False
-        )[0]["cd_estado"]
-    except:
-        id_state = None
+    states = state.get(
+        conn=conn,
+        id_uf=realy_uf,
+        like=False
+    )
 
-    if id_state is None:
+    if len(states) == 0:
         return apit.get_response(
             response={
                 "message": f"O estado '{realy_uf}' não existe no banco"
@@ -89,23 +90,19 @@ def new(
             status=500
         )
 
-    query_city_exists = f"""
-        SELECT cd_cidade
-        FROM {table_name}
-        WHERE no_cidade = '{realy_name}'
-            AND cd_estado = '{id_state}'
-    """
+    id_state = states[0]["cd_estado"]
 
-    try:
-        id_city = conn.execute(query_city_exists).fetchone()[0]
-    except:
-        id_city = None
+    cities = get(
+        conn=conn,
+        name=realy_name,
+        id_state=id_state
+    )
 
-    if id_city is not None:
+    if len(cities) > 0:
         return apit.get_response(
             response={
                 "message": f"A cidade '{realy_name}' já está cadastrada",
-                "id_city": id_city
+                "id_city": cities[0]["cd_cidade"]
             },
             status=409
         )
@@ -121,6 +118,8 @@ def new(
     )
 
     conn.exec_driver_sql(query_insert, cv)
+
+    apit.commit_db(conn)
 
     id_city = get(
         conn=conn,

@@ -23,25 +23,29 @@ def get(
 
         equal_operator = "LIKE"
     
-    where = []
+    where = ["1 = 1"]
+
+    values = {}
 
     if id_state is not None:
-        where.append(f" AND cd_estado = {id_state}")
+        values["id_state"] = id_state
+        where.append("cd_estado = %(id_state)s")
 
     else:
         if realy_state_name is not None:
-            where.append(f" AND ds_estado {equal_operator} '{realy_state_name}'")
+            values["realy_state_name"] = realy_state_name
+            where.append(f"ds_estado {equal_operator} %(realy_state_name)s")
 
         if realy_uf is not None:
-            where.append(f" AND cd_uf {equal_operator} '{realy_uf}'")
+            values["realy_uf"] = realy_uf
+            where.append(f"cd_uf {equal_operator} %(realy_uf)s")
 
-    query_exists = f"""
+    query = f"""
         SELECT *
         FROM {table_name}
-        WHERE 1 = 1
-            {"".join(where)}
+        WHERE {" AND ".join(where)}
     """
 
-    ref_states = conn.execute(query_exists)
+    ref_states = conn.exec_driver_sql(query, values)
 
     return apit.rows_in_list_dict(ref_states)
