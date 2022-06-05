@@ -46,12 +46,13 @@ def create_address(
 ):
     query = """
         CREATE TABLE IF NOT EXISTS endereco (
-            cd_endereco     INTEGER NOT NULL AUTO_INCREMENT
-            , cd_cidade     INTEGER
-            , no_logradouro VARCHAR(100) NOT NULL
-            , no_bairro     VARCHAR(100) NOT NULL
-            , ds_numero     VARCHAR(10)
-            , nu_cep        CHAR(8)
+            cd_endereco         INTEGER NOT NULL AUTO_INCREMENT
+            , cd_cidade         INTEGER NOT NULL
+            , no_logradouro     VARCHAR(100) NOT NULL
+            , no_bairro         VARCHAR(100) NOT NULL
+            , ds_complemento    VARCHAR(100)
+            , ds_numero         VARCHAR(10)
+            , nu_cep            CHAR(8)
 
             , CONSTRAINT pk_endereco
                 PRIMARY KEY (cd_endereco)
@@ -153,8 +154,9 @@ def create_apply_discount(
 ):
     query = """
         CREATE TABLE IF NOT EXISTS aplicacao_desconto (
-            cd_desconto INTEGER NOT NULL
-            , cd_pedido INTEGER NOT NULL
+            cd_desconto     INTEGER NOT NULL
+            , cd_pedido     INTEGER NOT NULL
+            , vl_percentual DOUBLE NOT NULL
 
             , CONSTRAINT pk_aplicacao_desconto_pedido
                 PRIMARY KEY (cd_desconto, cd_pedido)
@@ -177,9 +179,11 @@ def create_tax(
 ):
     query = """
         CREATE TABLE IF NOT EXISTS imposto (
-            cd_imposto      INTEGER NOT NULL AUTO_INCREMENT
-            , no_imposto    VARCHAR(10) NOT NULL
-            , vl_percentual DOUBLE NOT NULL
+            cd_imposto              INTEGER NOT NULL AUTO_INCREMENT
+            , no_imposto            VARCHAR(10) NOT NULL
+            , vl_percentual         DOUBLE NOT NULL
+            , dt_ultima_alteracao   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            , dt_criacao            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
             , CONSTRAINT pk_imposto
                 PRIMARY KEY (cd_imposto)

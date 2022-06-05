@@ -2,11 +2,6 @@
 
 -- CREATE TABLES
 
-CREATE DATABASE ufesdelivery;
-
-
-USE ufesdelivery;
-
 
 CREATE TABLE IF NOT EXISTS estado (
     cd_estado   INTEGER NOT NULL AUTO_INCREMENT
@@ -115,8 +110,9 @@ CREATE TABLE IF NOT EXISTS pedido (
 
 
 CREATE TABLE IF NOT EXISTS aplicacao_desconto (
-    cd_desconto INTEGER NOT NULL
-    , cd_pedido INTEGER NOT NULL
+    cd_desconto     INTEGER NOT NULL
+    , cd_pedido     INTEGER NOT NULL
+    , vl_percentual DOUBLE NOT NULL
 
     , CONSTRAINT pk_aplicacao_desconto_pedido
         PRIMARY KEY (cd_desconto, cd_pedido)
@@ -132,9 +128,11 @@ CREATE TABLE IF NOT EXISTS aplicacao_desconto (
 
 
 CREATE TABLE IF NOT EXISTS imposto (
-    cd_imposto      INTEGER NOT NULL AUTO_INCREMENT
-    , no_imposto    VARCHAR(10) NOT NULL
-    , vl_percentual DOUBLE NOT NULL
+    cd_imposto              INTEGER NOT NULL AUTO_INCREMENT
+    , no_imposto            VARCHAR(10) NOT NULL
+    , vl_percentual         DOUBLE NOT NULL
+    , dt_ultima_alteracao   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    , dt_criacao            TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
     , CONSTRAINT pk_imposto
         PRIMARY KEY (cd_imposto)
