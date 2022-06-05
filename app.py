@@ -61,7 +61,7 @@ def reset_db():
 
     if not apit.authenticate(
         conn=DB_CONN,
-        type=4,
+        type_=4,
         email=json.get("email"),
         password=json.get("senha")
     ):
@@ -163,10 +163,10 @@ def new_address():
 
     kwargs = {
         "id_city": apit.treat_int(json.get("cd_cidade")),
-        "street_name": json.get("logradouro"),
-        "district_name": json.get("bairro"),
-        "number": json.get("numero"),
-        "postal_code": apit.treat_postal_code(json.get("cep")),
+        "street_name": json.get("no_logradouro"),
+        "district_name": json.get("no_bairro"),
+        "number": json.get("ds_numero"),
+        "postal_code": apit.treat_postal_code(json.get("nu_cep")),
         "complement": json.get("ds_complemento")
     }
 
@@ -218,10 +218,11 @@ def get_user(
         one_client = user.get(
             conn=DB_CONN,
             id_user=treat_id,
+            user_type=1,
             like=False
         )
 
-        if len(one_client) > 0 and one_client[0].get("cd_tipo_usuario") == 1:
+        if len(one_client) > 0:
             response["message"] = f"Cliente encontrado"
             response["result"] = one_client[0]
             status = 200
@@ -448,7 +449,8 @@ def get_all_product(
     
     if str(id_) == "all":
         all_product = produtc.get(
-            conn=DB_CONN
+            conn=DB_CONN,
+            like=False
         )
 
         qtt_products = len(all_product)
