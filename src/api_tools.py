@@ -10,6 +10,8 @@ import random as rdm
 
 import json
 
+import re
+
 
 def commit_db(
     conn: sa.engine.Connection
@@ -159,6 +161,7 @@ def rows_in_list_dict(
 def authenticate(
     conn: sa.engine.Connection,
     type_: int,
+    id_user: int = None,
     email: str = None,
     password: str = None,
     token: str = None,
@@ -167,29 +170,34 @@ def authenticate(
 
     realy_email = treat_str(email)
 
-    if token:
-        query = f"""
-            SELECT COUNT(1)
-            FROM {table_name}
-            WHERE cd_token = '{token}'
-                AND cd_tipo_usuario = {type_}
-        """
-    else:
-        if not realy_email or not password:
-            return False
-        
-        query = f"""
-            SELECT COUNT(1)
-            FROM {table_name}
-            WHERE ds_email = '{realy_email}'
-                AND cd_senha = '{password}'
-                AND cd_tipo_usuario = {type_}
-        """
+    values = {"type_": type_}
+    where = ["cd_tipo_usuario = %(type_)s"]
 
-    if conn.execute(query).fetchone()[0] == 1:
-        return True
-    
-    return False
+    if id_user is not None:
+        values["id_user"] = id_user
+        where.append("cd_usuario = %(id_user)s")
+
+    if token is not None:
+        values["token"] = token
+        where.append("cd_token = %(token)s")
+
+    elif realy_email is None or password is None:
+        return False
+
+    else:
+        values["realy_email"] = realy_email
+        values["password"] = password
+
+        where.append("ds_email = %(realy_email)s")
+        where.append("cd_senha = %(password)s")
+
+    query = f"""
+        SELECT COUNT(1)
+        FROM {table_name}
+        WHERE {" AND ".join(where)}
+    """
+
+    return conn.exec_driver_sql(query, values).fetchone()[0] == 1
 
 
 def generate_token(
@@ -201,7 +209,7 @@ def generate_token(
         FROM usuario
     """
 
-    result = conn.execute(query).fetchall()
+    result = conn.exec_driver_sql(query).fetchall()
 
     try:
         token_list = [t[0] for t in result]
@@ -276,13 +284,12 @@ def treat_float(
 def treat_postal_code(
     value: str | int
 ):
-    if treat_int(value) is None:
-        return None
+    template = re.compile(r"^[0-9]{5}-?[0-9]{3}$")
 
-    if len(str(value)) != 8:
-        return None
+    if template.match(str(value)) is not None:
+        return str(value)
     
-    return value
+    return None
 
 
 def table_exists(
@@ -295,33 +302,9 @@ def table_exists(
 def is_valid_email(
     email: str
 ):
-    split_at = email.split("@")
+    template = re.compile(r"^[a-z]+([._][a-z]+)*@[a-z]+(\.[a-z]+)*$")
 
-    if len(email) < 9:
-        return False
-
-    if len(split_at) != 2:
-        return False
-    
-    if " " in email:
-        return False
-
-    if "." not in split_at[1]:
-        return False
-    
-    if treat_int(email[0]) is not None:
-        return False
-    
-    if treat_int(split_at[1][0]) is not None:
-        return False
-
-    if email[0] == ".":
-        return False
-    
-    if split_at[1][0] == ".":
-        return False
-
-    return True
+    return template.match(email.lower()) is not None
 
 
 def validate_parameters(
