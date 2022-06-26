@@ -60,4 +60,23 @@ If `uf`: `ALL`
 }
 ```
 
+Error Response Code: `400`
+
+**Possible Messages Error:**
+```json
+{
+	"message": "Nenhum estado encontrado"
+}
+```
+```json
+{
+	"message": "O cd_uf '7' não foi encontrado"
+}
+```
+```json
+{
+	"message": "Parâmetros incorretos ou faltando"
+}
+```
+
 ***
