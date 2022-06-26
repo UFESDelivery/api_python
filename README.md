@@ -32,31 +32,31 @@ Success Response Code: `200`
 If `uf`: `AC`
 ```json
 {
-	"message": "Estado encontrado",
-	"result": {
-		"cd_estado": 1,
-		"cd_uf": "AC",
-		"ds_estado": "ACRE"
-	}
+    "message": "Estado encontrado",
+    "result": {
+        "cd_estado": 1,
+        "cd_uf": "AC",
+        "ds_estado": "ACRE"
+    }
 }
 ```
 If `uf`: `ALL`
 ```json
 {
-	"message": "'27' estados encontrados",
-	"result": [
-		{
-			"cd_estado": 1,
-			"cd_uf": "AC",
-			"ds_estado": "ACRE"
-		},
-		...
-		{
-			"cd_estado": 27,
-			"cd_uf": "TO",
-			"ds_estado": "TOCANTINS"
-		}
-	]
+    "message": "'27' estados encontrados",
+    "result": [
+        {
+            "cd_estado": 1,
+            "cd_uf": "AC",
+            "ds_estado": "ACRE"
+        },
+        ...
+        {
+            "cd_estado": 27,
+            "cd_uf": "TO",
+            "ds_estado": "TOCANTINS"
+        }
+    ]
 }
 ```
 
@@ -65,17 +65,17 @@ Error Response Code: `400`
 **Possible Messages Error:**
 ```json
 {
-	"message": "Nenhum estado encontrado"
+    "message": "Nenhum estado encontrado"
 }
 ```
 ```json
 {
-	"message": "O cd_uf '7' não foi encontrado"
+    "message": "O cd_uf '7' não foi encontrado"
 }
 ```
 ```json
 {
-	"message": "Parâmetros incorretos ou faltando"
+    "message": "Parâmetros incorretos ou faltando"
 }
 ```
 
