@@ -11,7 +11,10 @@ API backend do site UFES Delivery usando python
 
 URL: `/`
 
+Method: `GET`
+
 Success Response Code: `200`
+
 Content Result:
 ```json
 {
@@ -24,6 +27,9 @@ Content Result:
 ## States
 
 URL: `/state/get/<uf>`
+
+Method: `GET`
+
 Parameter `uf`: state abbreviation or `ALL`
 
 Success Response Code: `200`
@@ -84,6 +90,7 @@ Error Response Code: `400`
 ## City
 
 URL: `/city/new`
+
 Method: `POST`
 
 **Possibles Parameters JSON:**
