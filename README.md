@@ -80,3 +80,67 @@ Error Response Code: `400`
 ```
 
 ***
+
+## City
+
+URL: `/city/new`
+Method: `POST`
+
+**Possibles Parameters JSON:**
+```json
+{
+    "nome": "",     // Nome da cidade   - Obrigatório
+    "uf": ""        // Sigla do estado  - Obrigatório
+}
+```
+
+Success Response Code: `201`
+
+**Content Result:**
+```json
+{
+    "message": "A cidade 'LINHARES' foi criada com sucesso",
+    "id_city": 1
+}
+```
+
+Error Response Code: `400`
+
+**Content Result:**
+```json
+{
+    "message": "Parâmetros incorretos ou faltando"
+}
+```
+
+Error Response Code: `409`
+
+**Content Result:**
+```json
+{
+    "message": "A cidade 'LINHARES' já está cadastrada",
+    "id_city": 1
+}
+```
+
+Error Response Code: `500`
+
+**Content Result:**
+```json
+{
+    "message": "O nome da cidade 'A' é inválido"
+}
+```
+```json
+{
+    "message": "A UF 'AFD' do estado é inválida"
+}
+```
+```json
+{
+    "message": "O estado 'AF' não existe no banco"
+}
+```
+
+***
+
