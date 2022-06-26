@@ -287,7 +287,7 @@ def treat_postal_code(
     template = re.compile(r"^[0-9]{5}-?[0-9]{3}$")
 
     if template.match(str(value)) is not None:
-        return str(value)
+        return str(value).replace("-", "")
     
     return None
 
