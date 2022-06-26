@@ -35,6 +35,7 @@ Parameter `uf`: state abbreviation or `ALL`
 Success Response Code: `200`
 
 **Content Result:**
+
 If `uf`: `AC`
 ```json
 {
