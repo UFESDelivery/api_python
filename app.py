@@ -188,6 +188,74 @@ def new_address():
     )
 
 
+@APP.route("/user/get/address", methods=["POST"])
+def get_user_address():
+    json: dict = request.get_json()
+
+    response = {}
+    status = 200
+
+    kwargs = {
+        "id_user": apit.treat_int(json.get("cd_usuario")),
+        "user_email": apit.treat_str(json.get("ds_email")),
+        "user_password": json.get("cd_senha"),
+        "user_token": json.get("cd_token"),
+    }
+
+    ignore_args = [
+        "user_email",
+        "user_password",
+        "user_token"
+    ]
+
+    if not apit.validate_parameters(kwargs, ignore_args):
+        response["message"] = "Parâmetros incorretos ou faltando"
+        status = 400
+
+    else:
+        logged = False
+
+        for ut in apit.get_all_valid_users_types():
+            logged = apit.authenticate(
+                conn=DB_CONN,
+                type_=ut,
+                id_user=kwargs["id_user"],
+                token=kwargs["user_token"],
+                email=kwargs["user_email"],
+                password=kwargs["user_password"]
+            )
+            
+            if logged:
+                user_ = user.get(
+                    conn=DB_CONN,
+                    id_user=kwargs["id_user"]
+                )[0]
+
+                user_address = address.get(
+                    conn=DB_CONN,
+                    id_address=user_["cd_endereco"]
+                )
+
+                response["message"] = (
+                    f"Endereço do usuário '{user_['no_usuario']}'"
+                )
+
+                response["result"] = user_address[0]
+
+                status = 200
+
+                break
+
+        if not logged:
+            response["message"] = "Credenciais inválidas"
+            status = 401
+
+    return apit.get_response(
+        response=response,
+        status=status
+    )
+
+
 @APP.route("/user/get/client/<id_>", methods=["GET"])
 def get_user(
     id_: int | str
