@@ -164,7 +164,7 @@ def new(
         number=realy_number,
         postal_code=realy_postal_code,
         like=False
-    )[0]["cd_cidade"]
+    )[0]["cd_endereco"]
 
     return apit.get_response(
         response={
