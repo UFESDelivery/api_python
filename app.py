@@ -33,6 +33,11 @@ APP_PORT = os.getenv("APP_PORT")
 APP_HOST = os.getenv("APP_HOST")
 APP_DEBUG = os.getenv("APP_DEBUG")
 
+SSL_CONTEXT = (
+    "./server.cert",
+    "./server.key"
+)
+
 DB_CONN = apit.conn_mysql(
     username=DB_USER,
     password=DB_PASS,
@@ -590,4 +595,9 @@ if __name__ == "__main__":
 
     print(msg)
 
-    APP.run(debug=APP_DEBUG, host=APP_HOST, port=APP_PORT)
+    APP.run(
+        debug=APP_DEBUG,
+        host=APP_HOST,
+        port=APP_PORT,
+        ssl_context=SSL_CONTEXT
+    )
