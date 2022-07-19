@@ -527,7 +527,7 @@ def update_order():
         "cancel": bool(json.get("cancelar")),
         "user_email": apit.treat_str(json.get("ds_email")),
         "user_password": json.get("cd_senha"),
-        "token": json.get("cd_token")
+        "user_token": json.get("cd_token")
     }
 
     ignore_kwargs = [
