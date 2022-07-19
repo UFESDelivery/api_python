@@ -122,7 +122,7 @@ def new(
             id_order = get(
                 conn=conn,
                 id_user=id_user,
-                max_id_status=3
+                max_id_status=2
             )[0]["cd_pedido"]
 
             return apit.get_response(
@@ -209,7 +209,7 @@ def update(
     else:
         if close:
             cv["dt_fim"] = current_date
-            cv["cd_status"] = 5
+            cv["cd_status"] = 6
         else:
             if id_status is not None:
                 if id_status not in apit.get_all_valid_status():
@@ -293,7 +293,7 @@ def cancel(
     if len(orders) == 0:
         error = f"O cd_pedido '{id_order}' não foi encontrado"
     
-    elif orders[0]["cd_status"] > 4:
+    elif orders[0]["cd_status"] > 5:
         error = (
             "Não é possível cancelar um pedido que já saiu para entrega "
             "ou já foi cancelado"
@@ -314,7 +314,7 @@ def cancel(
             is_authenticated = [False]
         
         if True not in is_authenticated:
-            error = "Somente um funcionário ou um ADM pode cancelar esse pedido"
+            error = "Somente um funcionário ou um ADM podem cancelar esse pedido"
     
     if error is not None:
         return apit.get_response(
@@ -347,11 +347,7 @@ def cancel(
     update(
         conn=conn,
         id_order=id_order,
-        id_status=(
-            7
-            if orders[0]["cd_status"] <= 2
-            else 8
-        )
+        id_status=7 if orders[0]["cd_status"] <= 2 else 8
     )
     
     return apit.get_response(
