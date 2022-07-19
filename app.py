@@ -512,6 +512,104 @@ def new_order():
     )
 
 
+@APP.route("/order/update", methods=["POST"])
+def update_order():
+    json: dict = request.get_json()
+
+    response = {}
+    status = 200
+
+    kwargs = {
+        "id_user": apit.treat_int(json.get("cd_usuario")),
+        "id_order": apit.treat_int(json.get("cd_pedido")),
+        "id_status": apit.treat_int(json.get("cd_status")),
+        "close": bool(json.get("fechar")),
+        "cancel": bool(json.get("cancelar")),
+        "user_email": apit.treat_str(json.get("ds_email")),
+        "user_password": json.get("cd_senha"),
+        "token": json.get("cd_token")
+    }
+
+    ignore_kwargs = [
+        "id_status",
+        "close",
+        "cancel",
+        "user_email",
+        "user_password",
+        "token"
+    ]
+
+    if not apit.validate_parameters(kwargs, ignore_kwargs):
+        response["message"] = "Parâmetros incorretos ou faltando"
+        status = 400
+
+    else:
+        logged = False
+
+        for ut in apit.get_all_valid_users_types():
+            logged = apit.authenticate(
+                conn=DB_CONN,
+                type_=ut,
+                id_user=kwargs["id_user"],
+                token=kwargs["user_token"],
+                email=kwargs["user_email"],
+                password=kwargs["user_password"]
+            )
+
+            if logged:
+                order_ = order.get(
+                    conn=DB_CONN,
+                    id_order=kwargs["id_order"]
+                )
+
+                if ut == 1:
+                    if order_["cd_status"] > 2:
+                        response["message"] = (
+                            "Esse usuário não tem permissão de alterar o status "
+                            "do pedido atual"
+                        )
+                        status = 401
+                        break
+
+                    if kwargs["cancel"]:
+                        response["message"] = (
+                            f"Esse usuário não tem permissão de cancelar um pedido "
+                            f"com status '{order_['cd_status']}'"
+                        )
+                        status = 401
+                        break
+
+                    if kwargs["close"]:
+                        response["message"] = (
+                            "Esse usuário não tem permissão de fechar um pedido"
+                        )
+                        status = 401
+                        break
+
+                if kwargs["cancel"]:
+                    return order.cancel(
+                        conn=DB_CONN,
+                        id_order=kwargs["id_order"],
+                        adm_email=kwargs["user_email"],
+                        adm_password=kwargs["user_password"]
+                    )
+
+                return order.update(
+                    conn=DB_CONN,
+                    id_order=kwargs["id_order"],
+                    id_status=kwargs["id_status"],
+                )
+
+        if not logged:
+            response["message"] = "Credenciais inválidas"
+            status = 401
+
+    return apit.get_response(
+        response=response,
+        status=status
+    )
+
+
 @APP.route("/product/get/<id_>", methods=["GET"])
 def get_all_product(
     id_: int | str
